@@ -7,13 +7,13 @@
   <meta name="description" content="Hyper-realistic car gauge cluster demo with physics-based needle animation">
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@300;400;500&family=Bebas+Neue&display=swap');
-    
+
     * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
     }
-    
+
     :root {
       --bg-dark: #0a0a0c;
       --bg-panel: #121216;
@@ -25,7 +25,7 @@
       --accent-glow: rgba(255, 59, 48, 0.3);
       --border: rgba(255, 255, 255, 0.08);
     }
-    
+
     html, body {
       height: 100%;
       font-family: 'Oswald', system-ui, sans-serif;
@@ -33,23 +33,23 @@
       color: var(--text-primary);
       overflow-x: hidden;
     }
-    
+
     body {
       display: flex;
       flex-direction: column;
       min-height: 100vh;
-      background: 
+      background:
         radial-gradient(ellipse at 50% 0%, rgba(40, 40, 50, 0.4) 0%, transparent 60%),
         linear-gradient(180deg, var(--bg-dark) 0%, #050507 100%);
     }
-    
+
     /* Header */
     header {
       padding: 24px 32px;
       text-align: center;
       border-bottom: 1px solid var(--border);
     }
-    
+
     h1 {
       font-family: 'Bebas Neue', 'Oswald', sans-serif;
       font-size: clamp(28px, 5vw, 48px);
@@ -61,7 +61,7 @@
       -webkit-text-fill-color: transparent;
       background-clip: text;
     }
-    
+
     .subtitle {
       font-size: 13px;
       font-weight: 300;
@@ -70,7 +70,7 @@
       margin-top: 4px;
       text-transform: uppercase;
     }
-    
+
     /* Main content */
     main {
       flex: 1;
@@ -81,14 +81,57 @@
       padding: 32px 16px;
       gap: 32px;
     }
-    
+
     /* Gauge cluster container */
     .gauge-container {
       width: 100%;
       max-width: 800px;
       filter: drop-shadow(0 30px 60px rgba(0, 0, 0, 0.6));
     }
-    
+
+    /* Cluster layout (moved from CarGaugeCluster shadow DOM) */
+    .cluster {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      padding: 24px;
+      background: linear-gradient(145deg, #1a1a1a 0%, #0d0d0d 100%);
+      border-radius: 16px;
+      box-shadow:
+        0 20px 60px rgba(0, 0, 0, 0.5),
+        inset 0 1px 0 rgba(255, 255, 255, 0.05);
+      width: 100%;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .large-gauge {
+      aspect-ratio: 1;
+      max-width: 100%;
+    }
+
+    .small-gauges {
+      grid-column: 1 / -1;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+    }
+
+    .small-gauge {
+      aspect-ratio: 1;
+    }
+
+    @media (max-width: 600px) {
+      .cluster {
+        grid-template-columns: 1fr;
+        padding: 16px;
+      }
+
+      .small-gauges {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
     /* Control panel */
     .controls {
       width: 100%;
@@ -97,23 +140,23 @@
       border-radius: 16px;
       padding: 24px;
       border: 1px solid var(--border);
-      box-shadow: 
+      box-shadow:
         0 8px 32px rgba(0, 0, 0, 0.4),
         inset 0 1px 0 rgba(255, 255, 255, 0.04);
     }
-    
+
     .control-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
       gap: 20px;
     }
-    
+
     .control-group {
       display: flex;
       flex-direction: column;
       gap: 8px;
     }
-    
+
     .control-label {
       display: flex;
       justify-content: space-between;
@@ -124,7 +167,7 @@
       text-transform: uppercase;
       color: var(--text-secondary);
     }
-    
+
     .control-value {
       font-family: 'Oswald', monospace;
       font-size: 14px;
@@ -132,7 +175,7 @@
       min-width: 50px;
       text-align: right;
     }
-    
+
     /* Slider styling */
     input[type="range"] {
       -webkit-appearance: none;
@@ -144,7 +187,7 @@
       outline: none;
       cursor: pointer;
     }
-    
+
     input[type="range"]::-webkit-slider-thumb {
       -webkit-appearance: none;
       appearance: none;
@@ -156,11 +199,11 @@
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
       transition: transform 0.15s ease;
     }
-    
+
     input[type="range"]::-webkit-slider-thumb:hover {
       transform: scale(1.1);
     }
-    
+
     input[type="range"]::-moz-range-thumb {
       width: 18px;
       height: 18px;
@@ -170,7 +213,7 @@
       border: none;
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
     }
-    
+
     /* Buttons */
     .button-row {
       display: flex;
@@ -179,7 +222,7 @@
       flex-wrap: wrap;
       justify-content: center;
     }
-    
+
     button {
       font-family: 'Oswald', system-ui, sans-serif;
       font-size: 14px;
@@ -192,37 +235,37 @@
       cursor: pointer;
       transition: all 0.2s ease;
     }
-    
+
     .btn-primary {
       background: linear-gradient(135deg, var(--accent) 0%, #cc2020 100%);
       color: white;
       box-shadow: 0 4px 16px var(--accent-glow);
     }
-    
+
     .btn-primary:hover {
       transform: translateY(-2px);
       box-shadow: 0 6px 24px var(--accent-glow);
     }
-    
+
     .btn-primary:active {
       transform: translateY(0);
     }
-    
+
     .btn-secondary {
       background: var(--surface-elevated);
       color: var(--text-primary);
       border: 1px solid var(--border);
     }
-    
+
     .btn-secondary:hover {
       background: #2a2a30;
     }
-    
+
     .btn-secondary.active {
       background: linear-gradient(135deg, #2a6b2a 0%, #1f4f1f 100%);
       border-color: #3a8b3a;
     }
-    
+
     /* Status indicator */
     .status {
       display: flex;
@@ -233,7 +276,7 @@
       letter-spacing: 1px;
       text-transform: uppercase;
     }
-    
+
     .status-dot {
       width: 8px;
       height: 8px;
@@ -241,12 +284,12 @@
       background: #666;
       transition: all 0.3s ease;
     }
-    
+
     .status-dot.active {
       background: #4cd964;
       box-shadow: 0 0 12px rgba(76, 217, 100, 0.5);
     }
-    
+
     /* Footer */
     footer {
       padding: 16px;
@@ -256,40 +299,40 @@
       letter-spacing: 1px;
       border-top: 1px solid var(--border);
     }
-    
+
     footer a {
       color: var(--text-secondary);
       text-decoration: none;
       transition: color 0.2s;
     }
-    
+
     footer a:hover {
       color: var(--text-primary);
     }
-    
+
     /* Responsive adjustments */
     @media (max-width: 600px) {
       header {
         padding: 16px;
       }
-      
+
       main {
         padding: 16px 12px;
       }
-      
+
       .controls {
         padding: 16px;
       }
-      
+
       .control-grid {
         grid-template-columns: 1fr 1fr;
         gap: 16px;
       }
-      
+
       .button-row {
         flex-direction: column;
       }
-      
+
       button {
         width: 100%;
       }
@@ -299,14 +342,24 @@
 <body>
   <header>
     <h1>Classic Performance Cluster</h1>
-    <p class="subtitle">Canvas 2D • Spring-Damper Physics • Web Components</p>
+    <p class="subtitle">Canvas 2D • Spring-Damper Physics • Pure JS Library</p>
   </header>
-  
+
   <main>
     <div class="gauge-container">
-      <car-gauge-cluster id="cluster"></car-gauge-cluster>
+      <div class="cluster">
+        <div class="large-gauge" id="gauge-speed"></div>
+        <div class="large-gauge" id="gauge-rpm"></div>
+
+        <div class="small-gauges">
+          <div class="small-gauge" id="gauge-volt"></div>
+          <div class="small-gauge" id="gauge-temp"></div>
+          <div class="small-gauge" id="gauge-oilPressure"></div>
+          <div class="small-gauge" id="gauge-oilLevel"></div>
+        </div>
+      </div>
     </div>
-    
+
     <div class="controls">
       <div class="control-grid">
         <div class="control-group">
@@ -316,7 +369,7 @@
           </div>
           <input type="range" id="speed-slider" min="0" max="140" value="0">
         </div>
-        
+
         <div class="control-group">
           <div class="control-label">
             <span>RPM</span>
@@ -324,7 +377,7 @@
           </div>
           <input type="range" id="rpm-slider" min="0" max="80" value="0">
         </div>
-        
+
         <div class="control-group">
           <div class="control-label">
             <span>Voltage</span>
@@ -332,7 +385,7 @@
           </div>
           <input type="range" id="volt-slider" min="8" max="16" step="0.1" value="12">
         </div>
-        
+
         <div class="control-group">
           <div class="control-label">
             <span>Temperature</span>
@@ -340,7 +393,7 @@
           </div>
           <input type="range" id="temp-slider" min="100" max="250" value="180">
         </div>
-        
+
         <div class="control-group">
           <div class="control-label">
             <span>Oil Pressure</span>
@@ -348,7 +401,7 @@
           </div>
           <input type="range" id="oil-pressure-slider" min="0" max="80" value="40">
         </div>
-        
+
         <div class="control-group">
           <div class="control-label">
             <span>Oil Level</span>
@@ -357,13 +410,13 @@
           <input type="range" id="oil-level-slider" min="0" max="1" step="0.01" value="0.75">
         </div>
       </div>
-      
+
       <div class="button-row">
         <button class="btn-primary" id="sweep-btn">🔄 Sweep Test</button>
         <button class="btn-secondary" id="drive-btn">🚗 Random Drive</button>
         <button class="btn-secondary" id="stop-btn">⏹ Stop</button>
       </div>
-      
+
       <div class="button-row">
         <div class="status">
           <span class="status-dot" id="status-dot"></span>
@@ -372,21 +425,38 @@
       </div>
     </div>
   </main>
-  
+
   <footer>
-    <p>Built with pure Web Components • No external dependencies • 
+    <p>Built with pure JS • No external dependencies •
       <a href="https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API" target="_blank">Canvas 2D API</a>
     </p>
   </footer>
-  
+
   <script type="module">
-    import { CarGauge, CarGaugeCluster } from './gauges.js';
-    
+    import { Gauge } from './src/index.js';
+
+    // Create all gauges
+    const gauges = {
+      speed: new Gauge(document.getElementById('gauge-speed'), 'speed'),
+      rpm: new Gauge(document.getElementById('gauge-rpm'), 'rpm'),
+      volt: new Gauge(document.getElementById('gauge-volt'), 'volt'),
+      temp: new Gauge(document.getElementById('gauge-temp'), 'temp'),
+      oilPressure: new Gauge(document.getElementById('gauge-oilPressure'), 'oilPressure'),
+      oilLevel: new Gauge(document.getElementById('gauge-oilLevel'), 'oilLevel'),
+    };
+
+    // Set initial values (snap, no animation)
+    gauges.speed.setValue(0, { immediate: true });
+    gauges.rpm.setValue(0, { immediate: true });
+    gauges.volt.setValue(12, { immediate: true });
+    gauges.temp.setValue(180, { immediate: true });
+    gauges.oilPressure.setValue(40, { immediate: true });
+    gauges.oilLevel.setValue(0.75, { immediate: true });
+
     // DOM References
-    const cluster = document.getElementById('cluster');
     const statusDot = document.getElementById('status-dot');
     const statusText = document.getElementById('status-text');
-    
+
     // Slider controls
     const sliders = {
       speed: { slider: document.getElementById('speed-slider'), value: document.getElementById('speed-value'), format: v => `${Math.round(v)} MPH` },
@@ -396,103 +466,76 @@
       oilPressure: { slider: document.getElementById('oil-pressure-slider'), value: document.getElementById('oil-pressure-value'), format: v => `${Math.round(v)} PSI` },
       oilLevel: { slider: document.getElementById('oil-level-slider'), value: document.getElementById('oil-level-value'), format: v => `${Math.round(v * 100)}%` }
     };
-    
+
     // Button references
     const sweepBtn = document.getElementById('sweep-btn');
     const driveBtn = document.getElementById('drive-btn');
     const stopBtn = document.getElementById('stop-btn');
-    
+
     // Simulation state
     let simulationActive = false;
     let simulationLoop = null;
-    
-    // Wait for cluster to be ready
-    function waitForCluster() {
-      return new Promise(resolve => {
-        if (cluster.getGauge) {
-          resolve();
-        } else {
-          const observer = new MutationObserver(() => {
-            if (cluster.getGauge) {
-              observer.disconnect();
-              resolve();
-            }
-          });
-          observer.observe(cluster.shadowRoot || cluster, { childList: true, subtree: true });
-          
-          // Fallback timeout
-          setTimeout(resolve, 100);
-        }
+
+    // Bind sliders
+    for (const [type, control] of Object.entries(sliders)) {
+      control.slider.addEventListener('input', () => {
+        const value = parseFloat(control.slider.value);
+        gauges[type].setValue(value);
+        control.value.textContent = control.format(value);
       });
     }
-    
-    // Initialize controls
-    async function init() {
-      await waitForCluster();
-      
-      // Bind sliders
-      for (const [type, control] of Object.entries(sliders)) {
-        control.slider.addEventListener('input', () => {
-          const value = parseFloat(control.slider.value);
-          cluster.setGaugeValue(type, value);
-          control.value.textContent = control.format(value);
-        });
-      }
-      
-      // Sweep button
-      sweepBtn.addEventListener('click', () => {
-        cluster.sweep();
-        setStatus('Sweep Test', true);
-        setTimeout(() => setStatus('Ready', false), 2500);
+
+    // Sweep button — stagger for dramatic effect
+    sweepBtn.addEventListener('click', () => {
+      const gaugeList = Object.values(gauges);
+      gaugeList.forEach((gauge, index) => {
+        setTimeout(() => gauge.sweep(), index * 100);
       });
-      
-      // Random drive button
-      driveBtn.addEventListener('click', () => {
-        if (simulationActive) return;
-        startSimulation();
+      setStatus('Sweep Test', true);
+      setTimeout(() => setStatus('Ready', false), 2500);
+    });
+
+    // Random drive button
+    driveBtn.addEventListener('click', () => {
+      if (simulationActive) return;
+      startSimulation();
+    });
+
+    // Stop button
+    stopBtn.addEventListener('click', () => {
+      stopSimulation();
+    });
+
+    // Initial sweep on load
+    setTimeout(() => {
+      const gaugeList = Object.values(gauges);
+      gaugeList.forEach((gauge, index) => {
+        setTimeout(() => gauge.sweep(), index * 100);
       });
-      
-      // Stop button
-      stopBtn.addEventListener('click', () => {
-        stopSimulation();
-      });
-      
-      // Initial sweep on load
-      setTimeout(() => {
-        cluster.sweep();
-        setStatus('Startup Self-Test', true);
-        setTimeout(() => setStatus('Ready', false), 2500);
-      }, 500);
-    }
-    
+      setStatus('Startup Self-Test', true);
+      setTimeout(() => setStatus('Ready', false), 2500);
+    }, 500);
+
     // Status indicator
     function setStatus(text, active) {
       statusText.textContent = text;
       statusDot.classList.toggle('active', active);
       driveBtn.classList.toggle('active', simulationActive);
     }
-    
+
     // ═══════════════════════════════════════════════════════════════════════
     // TELEMETRY SIMULATION
     // ═══════════════════════════════════════════════════════════════════════
-    
-    /**
-     * Simulates a "random drive" with realistic value changes:
-     * - RPM oscillates with engine "rev" pattern
-     * - Speed ramps up/down based on RPM
-     * - Voltage fluctuates slightly
-     * - Temperature slowly rises then stabilizes
-     * - Oil pressure varies with RPM
-     */
+
     function startSimulation() {
       if (simulationActive) return;
-      
+
       simulationActive = true;
       setStatus('Simulating Drive', true);
-      
+
       let time = 0;
       const startTime = performance.now();
-      
+
       // Simulation state
       let speed = 0;
       let rpm = 10;
@@ -500,60 +543,58 @@
       let temp = 180;
       let oilPressure = 40;
       let oilLevel = 0.75;
-      
+
       // Target states (for smooth transitions)
       let targetRpm = 25;
       let accelerating = true;
-      
+
       function simulate() {
         if (!simulationActive) return;
-        
+
         time = (performance.now() - startTime) / 1000;
-        
+
         // RPM: oscillate with occasional revs
         const rpmPhase = Math.sin(time * 0.5) * 0.3 + Math.sin(time * 2.1) * 0.1;
-        
+
         // Change driving behavior every 3-8 seconds
         if (Math.random() < 0.01) {
           accelerating = !accelerating;
           targetRpm = accelerating ? 35 + Math.random() * 35 : 10 + Math.random() * 20;
         }
-        
+
         // Smooth RPM approach to target
         rpm += (targetRpm - rpm) * 0.02;
         rpm += rpmPhase * 5;
         rpm = Math.max(8, Math.min(75, rpm));
-        
+
         // Speed correlates with RPM (simplified gear simulation)
         const targetSpeed = (rpm / 70) * 120 + Math.random() * 5;
         speed += (targetSpeed - speed) * 0.03;
         speed = Math.max(0, Math.min(135, speed));
-        
+
         // Voltage: slight fluctuation around 13.8-14.2V when running
         volt = 13.8 + Math.sin(time * 0.7) * 0.3 + Math.random() * 0.2;
-        
+
         // Temperature: slowly rises to ~210, fluctuates
         temp += (210 - temp) * 0.001;
         temp += Math.sin(time * 0.3) * 2;
         temp = Math.max(160, Math.min(230, temp));
-        
+
         // Oil pressure: varies with RPM
         oilPressure = 20 + (rpm / 80) * 45 + Math.sin(time * 1.5) * 3;
         oilPressure = Math.max(15, Math.min(70, oilPressure));
-        
+
         // Oil level: stable with tiny fluctuation
         oilLevel = 0.72 + Math.sin(time * 0.1) * 0.03;
-        
+
         // Update gauges
-        cluster.setValues({
-          speed,
-          rpm,
-          volt,
-          temp,
-          oilPressure,
-          oilLevel
-        });
-        
+        gauges.speed.setValue(speed);
+        gauges.rpm.setValue(rpm);
+        gauges.volt.setValue(volt);
+        gauges.temp.setValue(temp);
+        gauges.oilPressure.setValue(oilPressure);
+        gauges.oilLevel.setValue(oilLevel);
+
         // Update slider displays
         updateSliderDisplay('speed', speed);
         updateSliderDisplay('rpm', rpm);
@@ -561,13 +602,13 @@
         updateSliderDisplay('temp', temp);
         updateSliderDisplay('oilPressure', oilPressure);
         updateSliderDisplay('oilLevel', oilLevel);
-        
+
         simulationLoop = requestAnimationFrame(simulate);
       }
-      
+
       simulationLoop = requestAnimationFrame(simulate);
     }
-    
+
     function stopSimulation() {
       simulationActive = false;
       if (simulationLoop) {
@@ -576,7 +617,7 @@
       }
       setStatus('Stopped', false);
     }
-    
+
     function updateSliderDisplay(type, value) {
       const control = sliders[type];
       if (control) {
@@ -584,9 +625,6 @@
         control.value.textContent = control.format(value);
       }
     }
-    
-    // Initialize
-    init();
   </script>
 </body>
 </html>
