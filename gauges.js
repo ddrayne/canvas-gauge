@@ -32,7 +32,7 @@ const GAUGE_CONFIGS = {
     endAngle: 45,
     stiffness: 120,
     damping: 18,
-    showOdometer: true
+    showOdometer: false
   },
   rpm: {
     min: 0,
@@ -266,6 +266,9 @@ class GaugeRenderer {
     // Layer 4: Gauge face
     this.drawFace(ctx, center, radius);
 
+    // Layer 4.5: Redline arc band
+    this.drawRedlineArc(ctx, center, radius);
+
     // Layer 5: Tick marks
     this.drawTicks(ctx, center, radius);
 
@@ -382,6 +385,27 @@ class GaugeRenderer {
     ctx.restore();
   }
 
+  drawRedlineArc(ctx, center, radius) {
+    if (!this.config.redlineStart) return;
+
+    const config = this.config;
+    const faceRadius = radius * 0.88;
+    const startAngle = (config.startAngle - 90) * Math.PI / 180;
+    const endAngle = (config.endAngle - 90) * Math.PI / 180;
+    const totalAngle = endAngle - startAngle;
+
+    const redlineAngle = startAngle + ((config.redlineStart - config.min) / (config.max - config.min)) * totalAngle;
+
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(center, center, faceRadius * 0.88, redlineAngle, endAngle);
+    ctx.arc(center, center, faceRadius * 0.72, endAngle, redlineAngle, true);
+    ctx.closePath();
+    ctx.fillStyle = 'rgba(204, 32, 32, 0.15)';
+    ctx.fill();
+    ctx.restore();
+  }
+
   drawTicks(ctx, center, radius) {
     const faceRadius = radius * 0.88;
     const config = this.config;
@@ -459,14 +483,14 @@ class GaugeRenderer {
     // Condensed italic font stack (no external fonts)
     // Use smaller font for gauges with many ticks
     const baseFontSize = this.size > 150 ? this.size * 0.07 : this.size * 0.085;
-    const fontSize = config.majorTicks > 6 ? baseFontSize * 0.85 : baseFontSize;
+    const fontSize = config.majorTicks > 6 ? baseFontSize * 0.78 : baseFontSize;
     ctx.font = `italic ${fontSize}px "Arial Narrow", "Helvetica Neue", Arial, sans-serif`;
     ctx.fillStyle = '#1A1A1A';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
 
     const majorCount = config.majorTicks;
-    const numberRadius = faceRadius * 0.52;  // Push numbers further out
+    const numberRadius = faceRadius * 0.56;  // Push numbers further out
 
     for (let i = 0; i < majorCount; i++) {
       const angle = startAngle + (i / (majorCount - 1)) * totalAngle;
@@ -505,8 +529,16 @@ class GaugeRenderer {
     ctx.textBaseline = 'middle';
 
     // Position label in lower portion of gauge
-    const labelY = center + radius * 0.35;
+    const labelY = center + radius * 0.28;
     ctx.fillText(config.label, center, labelY);
+
+    // Draw units text below label if different from label (e.g., "×1000" below "RPM")
+    if (config.units && config.units !== config.label) {
+      const unitsFontSize = fontSize * 0.55;
+      ctx.font = `bold ${unitsFontSize}px "Arial Narrow", "Helvetica Neue", Arial, sans-serif`;
+      ctx.fillStyle = '#555555';
+      ctx.fillText(config.units, center, labelY + fontSize * 0.85);
+    }
 
     ctx.restore();
   }
