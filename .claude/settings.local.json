@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(start \"\" \"C:\\\\Users\\\\danie\\\\Documents\\\\Code\\\\web-car-dash\\\\index.html\")",
+      "Bash(start \"\" python -m http.server:*)",
+      "Bash(start:*)"
+    ]
+  }
+}
