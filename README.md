@@ -4,7 +4,7 @@ Hyper-realistic automotive gauges rendered entirely on HTML Canvas with spring-d
 
 **[Live Demo](https://ddrayne.github.io/canvas-gauge/)** | **[API Docs](https://ddrayne.github.io/canvas-gauge/docs.html)** | **[Interactive Builder](https://ddrayne.github.io/canvas-gauge/builder.html)**
 
-![Canvas Gauge Demo](https://ddrayne.github.io/canvas-gauge/screenshots/cluster.png)
+![Canvas Gauge Demo](screenshots/cluster.png)
 
 ## Features
 
