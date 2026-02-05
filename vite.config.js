@@ -10,8 +10,8 @@ export default defineConfig({
   build: {
     lib: {
       entry: fileURLToPath(new URL('./src/index.js', import.meta.url)),
-      name: 'CarGauge',
-      fileName: 'car-gauge',
+      name: 'CanvasGauge',
+      fileName: 'canvas-gauge',
     },
   },
 });

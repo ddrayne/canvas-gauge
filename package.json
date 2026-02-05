@@ -1,13 +1,14 @@
 {
-  "name": "web-car-dash",
+  "name": "canvas-gauge",
   "version": "1.0.0",
+  "description": "Hyper-realistic canvas gauge with spring-damper needle physics. Zero dependencies.",
   "type": "module",
-  "main": "./dist/car-gauge.umd.cjs",
-  "module": "./dist/car-gauge.js",
+  "main": "./dist/canvas-gauge.umd.cjs",
+  "module": "./dist/canvas-gauge.js",
   "exports": {
     ".": {
-      "import": "./dist/car-gauge.js",
-      "require": "./dist/car-gauge.umd.cjs"
+      "import": "./dist/canvas-gauge.js",
+      "require": "./dist/canvas-gauge.umd.cjs"
     }
   },
   "files": [
