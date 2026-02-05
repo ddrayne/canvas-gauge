@@ -45,9 +45,35 @@
 
     /* Header */
     header {
-      padding: 24px 32px;
+      padding: 24px 32px 0;
       text-align: center;
       border-bottom: 1px solid var(--border);
+    }
+
+    .page-nav {
+      display: flex;
+      justify-content: center;
+      gap: 32px;
+      padding: 16px 0;
+    }
+
+    .nav-link {
+      font-family: 'Oswald', sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+      text-decoration: none;
+      padding: 4px 0;
+      border-bottom: 2px solid transparent;
+      transition: all 0.2s;
+    }
+
+    .nav-link:hover { color: var(--text-primary); }
+    .nav-link.active {
+      color: var(--accent);
+      border-bottom-color: var(--accent);
     }
 
     h1 {
@@ -343,6 +369,11 @@
   <header>
     <h1>Classic Performance Cluster</h1>
     <p class="subtitle">Canvas 2D • Spring-Damper Physics • Pure JS Library</p>
+    <nav class="page-nav">
+      <a href="index.html" class="nav-link active">Demo</a>
+      <a href="docs.html" class="nav-link">Docs</a>
+      <a href="builder.html" class="nav-link">Builder</a>
+    </nav>
   </header>
 
   <main>

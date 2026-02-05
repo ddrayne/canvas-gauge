@@ -1,0 +1,1035 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Car Gauge API Documentation</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@300;400;500&family=Bebas+Neue&display=swap');
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg-dark: #0a0a0c;
+      --bg-panel: #121216;
+      --surface: #1a1a1f;
+      --surface-elevated: #242429;
+      --text-primary: #f5f5f7;
+      --text-secondary: #8e8e93;
+      --accent: #ff3b30;
+      --accent-glow: rgba(255, 59, 48, 0.3);
+      --border: rgba(255, 255, 255, 0.08);
+      --sidebar-width: 240px;
+      --code-bg: #1e1e2e;
+      --code-keyword: #c678dd;
+      --code-string: #98c379;
+      --code-number: #d19a66;
+      --code-comment: #5c6370;
+      --code-property: #e06c75;
+      --code-function: #61afef;
+    }
+
+    html, body {
+      height: 100%;
+      font-family: 'Oswald', system-ui, sans-serif;
+      background: var(--bg-dark);
+      color: var(--text-primary);
+      overflow-x: hidden;
+    }
+
+    body {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      background: linear-gradient(180deg, var(--bg-dark) 0%, #050507 100%);
+    }
+
+    /* Header + Nav */
+    header {
+      padding: 24px 32px 0;
+      text-align: center;
+      border-bottom: 1px solid var(--border);
+    }
+
+    h1 {
+      font-family: 'Bebas Neue', 'Oswald', sans-serif;
+      font-size: clamp(24px, 4vw, 40px);
+      font-weight: 400;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      background: linear-gradient(135deg, #fff 0%, #b0b0b0 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .subtitle {
+      font-size: 13px;
+      font-weight: 300;
+      letter-spacing: 2px;
+      color: var(--text-secondary);
+      margin-top: 4px;
+      text-transform: uppercase;
+    }
+
+    .page-nav {
+      display: flex;
+      justify-content: center;
+      gap: 32px;
+      padding: 16px 0;
+    }
+
+    .nav-link {
+      font-family: 'Oswald', sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+      text-decoration: none;
+      padding: 4px 0;
+      border-bottom: 2px solid transparent;
+      transition: all 0.2s;
+    }
+
+    .nav-link:hover { color: var(--text-primary); }
+    .nav-link.active {
+      color: var(--accent);
+      border-bottom-color: var(--accent);
+    }
+
+    /* Layout */
+    .docs-layout {
+      display: flex;
+      flex: 1;
+      max-width: 1400px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      width: var(--sidebar-width);
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+      padding: 24px 16px;
+      border-right: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+
+    .sidebar a {
+      display: block;
+      padding: 8px 12px;
+      font-size: 13px;
+      font-weight: 400;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+      text-decoration: none;
+      border-left: 2px solid transparent;
+      transition: all 0.2s;
+    }
+
+    .sidebar a:hover { color: var(--text-primary); }
+    .sidebar a.active {
+      color: var(--accent);
+      border-left-color: var(--accent);
+      background: rgba(255, 59, 48, 0.05);
+    }
+
+    /* Content */
+    .content {
+      flex: 1;
+      padding: 32px 48px;
+      max-width: 900px;
+      min-width: 0;
+    }
+
+    .content section {
+      margin-bottom: 64px;
+      scroll-margin-top: 20px;
+    }
+
+    .content h2 {
+      font-family: 'Bebas Neue', 'Oswald', sans-serif;
+      font-size: 32px;
+      font-weight: 400;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--text-primary);
+      margin-bottom: 16px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .content h3 {
+      font-size: 18px;
+      font-weight: 500;
+      letter-spacing: 1px;
+      color: var(--text-primary);
+      margin: 24px 0 8px;
+    }
+
+    .content p {
+      font-size: 15px;
+      font-weight: 300;
+      line-height: 1.7;
+      color: var(--text-secondary);
+      margin-bottom: 16px;
+    }
+
+    .content ul, .content ol {
+      margin: 0 0 16px 24px;
+      font-size: 15px;
+      font-weight: 300;
+      line-height: 1.7;
+      color: var(--text-secondary);
+    }
+
+    .content li { margin-bottom: 4px; }
+
+    /* Inline code */
+    code {
+      font-family: 'Courier New', monospace;
+      font-size: 13px;
+      background: var(--surface-elevated);
+      padding: 2px 6px;
+      border-radius: 4px;
+      color: var(--code-property);
+    }
+
+    /* Code blocks */
+    .code-block {
+      position: relative;
+      margin: 16px 0;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .code-block pre {
+      background: var(--code-bg);
+      padding: 16px 20px;
+      overflow-x: auto;
+      font-family: 'Courier New', monospace;
+      font-size: 13px;
+      line-height: 1.6;
+      color: #abb2bf;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+    }
+
+    .code-block .copy-btn {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      background: var(--surface-elevated);
+      border: 1px solid var(--border);
+      color: var(--text-secondary);
+      padding: 4px 10px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-family: 'Oswald', sans-serif;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      cursor: pointer;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+
+    .code-block:hover .copy-btn { opacity: 1; }
+    .code-block .copy-btn:hover { background: var(--surface); color: var(--text-primary); }
+
+    /* Syntax highlighting spans */
+    .kw { color: var(--code-keyword); }
+    .str { color: var(--code-string); }
+    .num { color: var(--code-number); }
+    .cmt { color: var(--code-comment); }
+    .prop { color: var(--code-property); }
+    .fn { color: var(--code-function); }
+
+    /* Live example areas */
+    .live-example {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+      margin: 16px 0;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .live-example .gauge-box {
+      width: 200px;
+      height: 200px;
+    }
+
+    .live-example .gauge-sm {
+      width: 150px;
+      height: 150px;
+    }
+
+    .live-example .gauge-xs {
+      width: 120px;
+      height: 120px;
+    }
+
+    /* Buttons in examples */
+    .example-btn {
+      font-family: 'Oswald', sans-serif;
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      padding: 8px 16px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: var(--surface-elevated);
+      color: var(--text-primary);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .example-btn:hover { background: #2a2a30; }
+    .example-btn.accent {
+      background: linear-gradient(135deg, var(--accent) 0%, #cc2020 100%);
+      border-color: transparent;
+      box-shadow: 0 2px 8px var(--accent-glow);
+    }
+
+    /* Slider */
+    .example-slider {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 200px;
+      height: 6px;
+      background: var(--bg-dark);
+      border-radius: 3px;
+      outline: none;
+    }
+
+    .example-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 16px;
+      height: 16px;
+      background: linear-gradient(145deg, #fff, #c0c0c0);
+      border-radius: 50%;
+      cursor: pointer;
+    }
+
+    .example-slider::-moz-range-thumb {
+      width: 16px;
+      height: 16px;
+      background: linear-gradient(145deg, #fff, #c0c0c0);
+      border-radius: 50%;
+      cursor: pointer;
+      border: none;
+    }
+
+    /* Event log */
+    .event-log {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 12px;
+      font-family: 'Courier New', monospace;
+      font-size: 12px;
+      color: var(--code-string);
+      height: 120px;
+      overflow-y: auto;
+      width: 100%;
+      max-width: 400px;
+    }
+
+    .event-log .entry { margin-bottom: 2px; }
+    .event-log .entry .ts { color: var(--code-comment); }
+
+    /* Config table */
+    .config-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 16px 0;
+      font-size: 13px;
+    }
+
+    .config-table th {
+      text-align: left;
+      padding: 10px 12px;
+      border-bottom: 2px solid var(--border);
+      font-weight: 500;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+      font-size: 11px;
+    }
+
+    .config-table td {
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--border);
+      color: var(--text-secondary);
+      font-weight: 300;
+      vertical-align: top;
+    }
+
+    .config-table td:first-child {
+      font-family: 'Courier New', monospace;
+      color: var(--code-property);
+      white-space: nowrap;
+    }
+
+    .config-table td:nth-child(2) {
+      font-family: 'Courier New', monospace;
+      color: var(--code-keyword);
+      white-space: nowrap;
+    }
+
+    .config-table td:nth-child(3) {
+      font-family: 'Courier New', monospace;
+      color: var(--code-number);
+    }
+
+    /* Preset cards */
+    .preset-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+      margin: 16px 0;
+    }
+
+    .preset-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .preset-card .preset-name {
+      font-size: 16px;
+      font-weight: 500;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    .preset-card .preset-config {
+      font-family: 'Courier New', monospace;
+      font-size: 11px;
+      color: var(--text-secondary);
+      background: var(--code-bg);
+      padding: 8px;
+      border-radius: 4px;
+      width: 100%;
+      white-space: pre;
+      overflow-x: auto;
+      line-height: 1.4;
+    }
+
+    /* Container examples */
+    .container-examples {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      align-items: flex-start;
+    }
+
+    .container-examples .box {
+      border: 1px dashed var(--border);
+      position: relative;
+    }
+
+    .container-examples .box-label {
+      font-size: 10px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+      text-align: center;
+      margin-top: 4px;
+    }
+
+    /* Footer */
+    footer {
+      padding: 16px;
+      text-align: center;
+      font-size: 11px;
+      color: var(--text-secondary);
+      letter-spacing: 1px;
+      border-top: 1px solid var(--border);
+    }
+
+    /* Responsive */
+    @media (max-width: 900px) {
+      .sidebar {
+        display: none;
+      }
+
+      .mobile-tabs {
+        display: flex !important;
+        overflow-x: auto;
+        gap: 0;
+        padding: 0 16px;
+        border-bottom: 1px solid var(--border);
+        -webkit-overflow-scrolling: touch;
+      }
+
+      .mobile-tabs a {
+        display: block;
+        padding: 10px 14px;
+        font-size: 11px;
+        font-weight: 400;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        color: var(--text-secondary);
+        text-decoration: none;
+        white-space: nowrap;
+        border-bottom: 2px solid transparent;
+        transition: all 0.2s;
+        flex-shrink: 0;
+      }
+
+      .mobile-tabs a.active {
+        color: var(--accent);
+        border-bottom-color: var(--accent);
+      }
+
+      .content {
+        padding: 24px 16px;
+      }
+
+      .preset-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .mobile-tabs { display: none; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Car Gauge API</h1>
+    <p class="subtitle">Pure JS Canvas Gauge Library</p>
+    <nav class="page-nav">
+      <a href="index.html" class="nav-link">Demo</a>
+      <a href="docs.html" class="nav-link active">Docs</a>
+      <a href="builder.html" class="nav-link">Builder</a>
+    </nav>
+  </header>
+
+  <div class="mobile-tabs" id="mobile-tabs"></div>
+
+  <div class="docs-layout">
+    <aside class="sidebar" id="sidebar">
+      <a href="#quick-start">Quick Start</a>
+      <a href="#constructor">Constructor</a>
+      <a href="#methods">Methods</a>
+      <a href="#properties">Properties</a>
+      <a href="#events">Events</a>
+      <a href="#config">Configuration</a>
+      <a href="#colors">Colors &amp; Theming</a>
+      <a href="#presets">Presets</a>
+      <a href="#container">Container</a>
+      <a href="#advanced">Advanced</a>
+    </aside>
+
+    <div class="content" id="content">
+
+      <!-- QUICK START -->
+      <section id="quick-start">
+        <h2>Quick Start</h2>
+        <p>A pure JavaScript canvas gauge library with spring-damper needle physics. No dependencies, no build step required for usage.</p>
+
+        <div class="code-block">
+          <button class="copy-btn">Copy</button>
+<pre><span class="cmt">// HTML: &lt;div id="my-gauge" style="width:200px;height:200px"&gt;&lt;/div&gt;</span>
+<span class="kw">import</span> { Gauge } <span class="kw">from</span> <span class="str">'./src/index.js'</span>;
+
+<span class="kw">const</span> gauge = <span class="kw">new</span> <span class="fn">Gauge</span>(document.<span class="fn">getElementById</span>(<span class="str">'my-gauge'</span>), {
+  <span class="prop">min</span>: <span class="num">0</span>, <span class="prop">max</span>: <span class="num">100</span>, <span class="prop">label</span>: <span class="str">'SPEED'</span>, <span class="prop">units</span>: <span class="str">'MPH'</span>
+});
+gauge.<span class="fn">setValue</span>(<span class="num">60</span>);</pre>
+        </div>
+
+        <div class="live-example">
+          <div class="gauge-box" id="qs-gauge"></div>
+        </div>
+      </section>
+
+      <!-- CONSTRUCTOR -->
+      <section id="constructor">
+        <h2>Constructor</h2>
+        <h3><code>new Gauge(element, config)</code></h3>
+        <ul>
+          <li><code>element</code> &mdash; An <code>HTMLElement</code>. The gauge appends a <code>&lt;canvas&gt;</code> child inside it.</li>
+          <li><code>config</code> &mdash; A preset name string (e.g. <code>'speed'</code>, <code>'rpm'</code>) or a config object merged with defaults.</li>
+        </ul>
+
+        <div class="code-block">
+          <button class="copy-btn">Copy</button>
+<pre><span class="cmt">// Using a preset name</span>
+<span class="kw">const</span> rpm = <span class="kw">new</span> <span class="fn">Gauge</span>(el1, <span class="str">'rpm'</span>);
+
+<span class="cmt">// Using a custom config object</span>
+<span class="kw">const</span> custom = <span class="kw">new</span> <span class="fn">Gauge</span>(el2, {
+  <span class="prop">min</span>: <span class="num">0</span>, <span class="prop">max</span>: <span class="num">200</span>,
+  <span class="prop">label</span>: <span class="str">'KPH'</span>, <span class="prop">units</span>: <span class="str">'km/h'</span>,
+  <span class="prop">majorTicks</span>: <span class="num">11</span>, <span class="prop">minorTicks</span>: <span class="num">2</span>
+});</pre>
+        </div>
+
+        <div class="live-example">
+          <div class="gauge-box" id="ctor-preset"></div>
+          <div class="gauge-box" id="ctor-custom"></div>
+        </div>
+      </section>
+
+      <!-- METHODS -->
+      <section id="methods">
+        <h2>Methods</h2>
+
+        <h3><code>setValue(value, options?)</code></h3>
+        <p>Set the gauge value. Animates by default with spring-damper physics. Pass <code>{ immediate: true }</code> to snap instantly. Dispatches <code>gauge:valuechange</code>.</p>
+
+        <h3><code>sweep()</code></h3>
+        <p>Runs a self-test sweep animation: needle goes to max then returns. Dispatches <code>gauge:sweepcomplete</code> when done.</p>
+
+        <h3><code>destroy()</code></h3>
+        <p>Disconnects the resize observer, cancels animation, and removes the canvas element. Call this before removing the gauge from the DOM.</p>
+
+        <div class="code-block">
+          <button class="copy-btn">Copy</button>
+<pre>gauge.<span class="fn">setValue</span>(<span class="num">75</span>);                   <span class="cmt">// animated</span>
+gauge.<span class="fn">setValue</span>(<span class="num">75</span>, { <span class="prop">immediate</span>: <span class="kw">true</span> }); <span class="cmt">// instant snap</span>
+gauge.<span class="fn">sweep</span>();                        <span class="cmt">// self-test</span>
+gauge.<span class="fn">destroy</span>();                      <span class="cmt">// cleanup</span></pre>
+        </div>
+
+        <div class="live-example" style="flex-direction: column; align-items: center;">
+          <div class="gauge-box" id="methods-gauge"></div>
+          <div style="display: flex; gap: 8px; flex-wrap: wrap; justify-content: center;">
+            <button class="example-btn" id="btn-animated">Animated 75</button>
+            <button class="example-btn" id="btn-immediate">Immediate 25</button>
+            <button class="example-btn accent" id="btn-sweep">Sweep</button>
+            <button class="example-btn" id="btn-zero">Reset 0</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- PROPERTIES -->
+      <section id="properties">
+        <h2>Properties</h2>
+
+        <h3><code>value</code> (getter/setter)</h3>
+        <p>Get or set the current target value. Setting calls <code>setValue()</code> with animation.</p>
+
+        <h3><code>vibration</code> (setter)</h3>
+        <p>Enable or disable needle vibration effect (subtle jitter, useful for RPM gauges).</p>
+
+        <div class="code-block">
+          <button class="copy-btn">Copy</button>
+<pre>gauge.value = <span class="num">50</span>;        <span class="cmt">// same as gauge.setValue(50)</span>
+console.<span class="fn">log</span>(gauge.value); <span class="cmt">// 50</span>
+gauge.vibration = <span class="kw">true</span>;   <span class="cmt">// enable needle jitter</span></pre>
+        </div>
+      </section>
+
+      <!-- EVENTS -->
+      <section id="events">
+        <h2>Events</h2>
+        <p>Events are dispatched on the container element passed to the constructor.</p>
+
+        <ul>
+          <li><code>gauge:ready</code> &mdash; Fired after construction and initial render.</li>
+          <li><code>gauge:valuechange</code> &mdash; Fired on <code>setValue()</code>. Detail: <code>{ value }</code>.</li>
+          <li><code>gauge:sweepcomplete</code> &mdash; Fired when a <code>sweep()</code> animation finishes.</li>
+        </ul>
+
+        <div class="live-example" style="flex-direction: column; align-items: center;">
+          <div style="display: flex; gap: 16px; align-items: center; flex-wrap: wrap; justify-content: center;">
+            <div class="gauge-box" id="events-gauge"></div>
+            <div style="display: flex; flex-direction: column; gap: 8px; align-items: center;">
+              <input type="range" class="example-slider" id="events-slider" min="0" max="100" value="0">
+              <button class="example-btn accent" id="btn-events-sweep">Sweep</button>
+            </div>
+          </div>
+          <div class="event-log" id="event-log"></div>
+        </div>
+      </section>
+
+      <!-- CONFIG REFERENCE -->
+      <section id="config">
+        <h2>Configuration Reference</h2>
+        <p>All configuration keys with their types and defaults. Pass these in the config object to the constructor.</p>
+
+        <table class="config-table">
+          <thead>
+            <tr><th>Key</th><th>Type</th><th>Default</th><th>Description</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>min</td><td>number</td><td>0</td><td>Minimum scale value</td></tr>
+            <tr><td>max</td><td>number</td><td>100</td><td>Maximum scale value</td></tr>
+            <tr><td>units</td><td>string</td><td>''</td><td>Unit text shown below label</td></tr>
+            <tr><td>label</td><td>string</td><td>''</td><td>Main label text on gauge face</td></tr>
+            <tr><td>majorTicks</td><td>number</td><td>5</td><td>Number of major tick marks</td></tr>
+            <tr><td>minorTicks</td><td>number</td><td>4</td><td>Minor ticks between each major</td></tr>
+            <tr><td>startAngle</td><td>number</td><td>-225</td><td>Start angle in degrees (from 12 o'clock)</td></tr>
+            <tr><td>endAngle</td><td>number</td><td>45</td><td>End angle in degrees</td></tr>
+            <tr><td>stiffness</td><td>number</td><td>120</td><td>Spring stiffness (higher = faster)</td></tr>
+            <tr><td>damping</td><td>number</td><td>18</td><td>Damping coefficient (higher = less bounce)</td></tr>
+            <tr><td>redlineStart</td><td>number</td><td>-</td><td>Value where redline zone begins</td></tr>
+            <tr><td>dangerStart</td><td>number</td><td>-</td><td>Value where danger zone begins</td></tr>
+            <tr><td>showOdometer</td><td>boolean</td><td>false</td><td>Show odometer display</td></tr>
+            <tr><td>customLabels</td><td>string[]</td><td>-</td><td>Custom labels for each major tick</td></tr>
+            <tr><td>faceStyle</td><td>string</td><td>'light'</td><td>'light' or 'dark' face background</td></tr>
+            <tr><td>colors</td><td>object</td><td>{}</td><td>Color overrides (see Colors section)</td></tr>
+            <tr><td>zones</td><td>array</td><td>[]</td><td>Warning/danger zone arcs</td></tr>
+            <tr><td>texts</td><td>array</td><td>[]</td><td>Arbitrary text placements on face</td></tr>
+            <tr><td>showDigitalValue</td><td>boolean</td><td>false</td><td>Show digital numeric readout</td></tr>
+          </tbody>
+        </table>
+
+        <p>Here is a "kitchen sink" gauge demonstrating many config keys:</p>
+
+        <div class="code-block">
+          <button class="copy-btn">Copy</button>
+<pre><span class="kw">new</span> <span class="fn">Gauge</span>(el, {
+  <span class="prop">min</span>: <span class="num">0</span>, <span class="prop">max</span>: <span class="num">120</span>,
+  <span class="prop">label</span>: <span class="str">'POWER'</span>, <span class="prop">units</span>: <span class="str">'kW'</span>,
+  <span class="prop">majorTicks</span>: <span class="num">7</span>, <span class="prop">minorTicks</span>: <span class="num">3</span>,
+  <span class="prop">faceStyle</span>: <span class="str">'dark'</span>,
+  <span class="prop">showDigitalValue</span>: <span class="kw">true</span>,
+  <span class="prop">zones</span>: [
+    { <span class="prop">start</span>: <span class="num">80</span>, <span class="prop">end</span>: <span class="num">100</span>, <span class="prop">color</span>: <span class="str">'rgba(255,165,0,0.15)'</span> },
+    { <span class="prop">start</span>: <span class="num">100</span>, <span class="prop">end</span>: <span class="num">120</span>, <span class="prop">color</span>: <span class="str">'rgba(204,32,32,0.15)'</span> }
+  ],
+  <span class="prop">texts</span>: [{ <span class="prop">text</span>: <span class="str">'EV'</span>, <span class="prop">x</span>: <span class="num">0</span>, <span class="prop">y</span>: <span class="num">-0.25</span> }]
+});</pre>
+        </div>
+
+        <div class="live-example">
+          <div class="gauge-box" id="config-gauge" style="width: 250px; height: 250px;"></div>
+        </div>
+      </section>
+
+      <!-- COLORS & THEMING -->
+      <section id="colors">
+        <h2>Colors &amp; Theming</h2>
+        <p>The <code>colors</code> object overrides individual gauge colors. All keys are optional; unset keys use smart defaults based on <code>faceStyle</code>.</p>
+
+        <table class="config-table">
+          <thead>
+            <tr><th>Key</th><th>Affects</th><th>Light Default</th><th>Dark Default</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>face</td><td>Face background gradient</td><td>#FEFEFE</td><td>#1A1A1A</td></tr>
+            <tr><td>needle</td><td>Needle gradient base</td><td>#CC1010</td><td>#CC1010</td></tr>
+            <tr><td>ticks</td><td>Major tick marks</td><td>#1A1A1A</td><td>#E0E0E0</td></tr>
+            <tr><td>minorTicks</td><td>Minor tick marks</td><td>#404040</td><td>#888888</td></tr>
+            <tr><td>numbers</td><td>Number text</td><td>#1A1A1A</td><td>#D0D0D0</td></tr>
+            <tr><td>label</td><td>Label text</td><td>#2A2A2A</td><td>#E0E0E0</td></tr>
+            <tr><td>units</td><td>Units text</td><td>#555555</td><td>#AAAAAA</td></tr>
+            <tr><td>redline</td><td>Redline/danger zone</td><td>#CC2020</td><td>#FF4040</td></tr>
+          </tbody>
+        </table>
+
+        <p>Three gauges: default light, custom colors, and dark face.</p>
+
+        <div class="live-example">
+          <div class="gauge-box" id="colors-default"></div>
+          <div class="gauge-box" id="colors-custom"></div>
+          <div class="gauge-box" id="colors-dark"></div>
+        </div>
+      </section>
+
+      <!-- PRESETS -->
+      <section id="presets">
+        <h2>Presets Reference</h2>
+        <p>Built-in presets for common automotive gauges. Pass the preset name as the config argument.</p>
+
+        <div class="preset-grid" id="preset-grid"></div>
+      </section>
+
+      <!-- CONTAINER -->
+      <section id="container">
+        <h2>Container Requirements</h2>
+        <p>The container element must have explicit dimensions. The gauge uses the smaller of width/height to maintain a square aspect ratio. Use <code>aspect-ratio: 1</code> for best results.</p>
+
+        <div class="code-block">
+          <button class="copy-btn">Copy</button>
+<pre><span class="cmt">&lt;!-- Recommended: square container --&gt;</span>
+&lt;div style=<span class="str">"width: 200px; aspect-ratio: 1"</span>&gt;&lt;/div&gt;
+
+<span class="cmt">&lt;!-- Also works: explicit width + height --&gt;</span>
+&lt;div style=<span class="str">"width: 300px; height: 300px"</span>&gt;&lt;/div&gt;
+
+<span class="cmt">&lt;!-- Responsive: percentage width --&gt;</span>
+&lt;div style=<span class="str">"width: 50%; aspect-ratio: 1"</span>&gt;&lt;/div&gt;</pre>
+        </div>
+
+        <div class="live-example">
+          <div class="container-examples">
+            <div>
+              <div class="box" id="container-square" style="width: 150px; height: 150px;"></div>
+              <div class="box-label">150 x 150</div>
+            </div>
+            <div>
+              <div class="box" id="container-wide" style="width: 250px; height: 150px;"></div>
+              <div class="box-label">250 x 150 (uses min)</div>
+            </div>
+            <div>
+              <div class="box" id="container-small" style="width: 100px; height: 100px;"></div>
+              <div class="box-label">100 x 100</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ADVANCED -->
+      <section id="advanced">
+        <h2>Advanced</h2>
+
+        <h3>NeedlePhysics</h3>
+        <p>The needle uses a second-order spring-damper system. The equation of motion:</p>
+        <div class="code-block">
+<pre><span class="cmt">// acceleration = stiffness * (target - angle) - damping * velocity</span>
+<span class="cmt">// Semi-implicit Euler integration at 120Hz fixed timestep</span></pre>
+        </div>
+        <ul>
+          <li><code>stiffness</code> &mdash; Higher values make the needle respond faster.</li>
+          <li><code>damping</code> &mdash; Higher values reduce oscillation/overshoot.</li>
+        </ul>
+        <p>Constructor: <code>new NeedlePhysics(config)</code>. Key methods: <code>setTarget(angle, immediate)</code>, <code>update(timestamp)</code>, <code>isSettled(threshold)</code>.</p>
+
+        <h3>GaugeRenderer</h3>
+        <p>Handles all canvas drawing. Static layers (bezel, face, ticks, numbers) are pre-rendered to an OffscreenCanvas. Per-frame layers (needle, center cap, digital value) are drawn each animation frame.</p>
+        <p>Layer pipeline: Outer Shadow &rarr; Bezel &rarr; Inner Lip &rarr; Face &rarr; Texts &rarr; Zones &rarr; Ticks &rarr; Numbers &rarr; Label &rarr; Odometer &rarr; Glass Highlight.</p>
+
+        <p>Compare stiffness/damping: "loose" (stiffness 40, damping 8) vs "tight" (stiffness 300, damping 30).</p>
+
+        <div class="live-example" style="flex-direction: column; align-items: center;">
+          <div style="display: flex; gap: 16px; flex-wrap: wrap; justify-content: center;">
+            <div>
+              <div class="gauge-box" id="adv-loose"></div>
+              <div style="text-align: center; font-size: 12px; color: var(--text-secondary); margin-top: 4px;">LOOSE (40/8)</div>
+            </div>
+            <div>
+              <div class="gauge-box" id="adv-tight"></div>
+              <div style="text-align: center; font-size: 12px; color: var(--text-secondary); margin-top: 4px;">TIGHT (300/30)</div>
+            </div>
+          </div>
+          <button class="example-btn accent" id="btn-adv-go">Go to 80</button>
+        </div>
+      </section>
+
+    </div>
+  </div>
+
+  <footer>
+    <p>Car Gauge Library &mdash; Pure JS &bull; Canvas 2D &bull; Zero Dependencies</p>
+  </footer>
+
+  <script type="module">
+    import { Gauge, presets } from './src/index.js';
+
+    // ── Quick Start ──
+    const qsGauge = new Gauge(document.getElementById('qs-gauge'), {
+      min: 0, max: 100, label: 'SPEED', units: 'MPH'
+    });
+    qsGauge.setValue(60);
+
+    // ── Constructor ──
+    const ctorPreset = new Gauge(document.getElementById('ctor-preset'), 'rpm');
+    ctorPreset.setValue(35);
+
+    const ctorCustom = new Gauge(document.getElementById('ctor-custom'), {
+      min: 0, max: 200, label: 'KPH', units: 'km/h', majorTicks: 11, minorTicks: 2
+    });
+    ctorCustom.setValue(120);
+
+    // ── Methods ──
+    const methodsGauge = new Gauge(document.getElementById('methods-gauge'), {
+      min: 0, max: 100, label: 'DEMO', units: '%', majorTicks: 6
+    });
+
+    document.getElementById('btn-animated').addEventListener('click', () => methodsGauge.setValue(75));
+    document.getElementById('btn-immediate').addEventListener('click', () => methodsGauge.setValue(25, { immediate: true }));
+    document.getElementById('btn-sweep').addEventListener('click', () => methodsGauge.sweep());
+    document.getElementById('btn-zero').addEventListener('click', () => methodsGauge.setValue(0));
+
+    // ── Events ──
+    const eventsEl = document.getElementById('events-gauge');
+    const eventsGauge = new Gauge(eventsEl, {
+      min: 0, max: 100, label: 'EVENTS', majorTicks: 6
+    });
+    const eventLog = document.getElementById('event-log');
+
+    function logEvent(name, detail) {
+      const ts = new Date().toLocaleTimeString();
+      const detailStr = detail ? ' ' + JSON.stringify(detail) : '';
+      const entry = document.createElement('div');
+      entry.className = 'entry';
+      entry.innerHTML = `<span class="ts">${ts}</span> ${name}${detailStr}`;
+      eventLog.appendChild(entry);
+      eventLog.scrollTop = eventLog.scrollHeight;
+    }
+
+    eventsEl.addEventListener('gauge:ready', () => logEvent('gauge:ready'));
+    eventsEl.addEventListener('gauge:valuechange', (e) => logEvent('gauge:valuechange', e.detail));
+    eventsEl.addEventListener('gauge:sweepcomplete', () => logEvent('gauge:sweepcomplete'));
+
+    document.getElementById('events-slider').addEventListener('input', (e) => {
+      eventsGauge.setValue(parseFloat(e.target.value));
+    });
+
+    document.getElementById('btn-events-sweep').addEventListener('click', () => eventsGauge.sweep());
+
+    // ── Config (Kitchen Sink) ──
+    const configGauge = new Gauge(document.getElementById('config-gauge'), {
+      min: 0, max: 120, label: 'POWER', units: 'kW',
+      majorTicks: 7, minorTicks: 3,
+      faceStyle: 'dark',
+      showDigitalValue: true,
+      zones: [
+        { start: 80, end: 100, color: 'rgba(255, 165, 0, 0.15)' },
+        { start: 100, end: 120, color: 'rgba(204, 32, 32, 0.15)' }
+      ],
+      texts: [{ text: 'EV', x: 0, y: -0.25 }]
+    });
+    configGauge.setValue(72);
+
+    // ── Colors ──
+    const colorsDefault = new Gauge(document.getElementById('colors-default'), {
+      min: 0, max: 100, label: 'DEFAULT', majorTicks: 6
+    });
+    colorsDefault.setValue(50);
+
+    const colorsCustom = new Gauge(document.getElementById('colors-custom'), {
+      min: 0, max: 100, label: 'CUSTOM', majorTicks: 6,
+      colors: { needle: '#2255CC', face: '#F0F0FF', ticks: '#223366', numbers: '#223366', label: '#223366' }
+    });
+    colorsCustom.setValue(50);
+
+    const colorsDark = new Gauge(document.getElementById('colors-dark'), {
+      min: 0, max: 100, label: 'DARK', majorTicks: 6,
+      faceStyle: 'dark'
+    });
+    colorsDark.setValue(50);
+
+    // ── Presets ──
+    const presetGrid = document.getElementById('preset-grid');
+    for (const [name, config] of Object.entries(presets)) {
+      const card = document.createElement('div');
+      card.className = 'preset-card';
+
+      const gaugeDiv = document.createElement('div');
+      gaugeDiv.className = 'gauge-sm';
+      gaugeDiv.style.width = '150px';
+      gaugeDiv.style.height = '150px';
+
+      const nameEl = document.createElement('div');
+      nameEl.className = 'preset-name';
+      nameEl.textContent = name;
+
+      const configEl = document.createElement('div');
+      configEl.className = 'preset-config';
+      const configLines = Object.entries(config).map(([k, v]) => {
+        const val = typeof v === 'string' ? `'${v}'` : JSON.stringify(v);
+        return `  ${k}: ${val}`;
+      }).join('\n');
+      configEl.textContent = `{\n${configLines}\n}`;
+
+      card.appendChild(gaugeDiv);
+      card.appendChild(nameEl);
+      card.appendChild(configEl);
+      presetGrid.appendChild(card);
+
+      const gauge = new Gauge(gaugeDiv, name);
+      // Set to midpoint
+      const mid = (config.min + config.max) / 2;
+      gauge.setValue(mid);
+    }
+
+    // ── Container ──
+    const cs = new Gauge(document.getElementById('container-square'), {
+      min: 0, max: 100, label: 'SQ', majorTicks: 6
+    });
+    cs.setValue(40);
+
+    const cw = new Gauge(document.getElementById('container-wide'), {
+      min: 0, max: 100, label: 'WIDE', majorTicks: 6
+    });
+    cw.setValue(60);
+
+    const csm = new Gauge(document.getElementById('container-small'), {
+      min: 0, max: 100, label: 'SM', majorTicks: 4
+    });
+    csm.setValue(30);
+
+    // ── Advanced ──
+    const advLoose = new Gauge(document.getElementById('adv-loose'), {
+      min: 0, max: 100, label: 'LOOSE', majorTicks: 6,
+      stiffness: 40, damping: 8
+    });
+    advLoose.setValue(0, { immediate: true });
+
+    const advTight = new Gauge(document.getElementById('adv-tight'), {
+      min: 0, max: 100, label: 'TIGHT', majorTicks: 6,
+      stiffness: 300, damping: 30
+    });
+    advTight.setValue(0, { immediate: true });
+
+    document.getElementById('btn-adv-go').addEventListener('click', () => {
+      advLoose.setValue(80);
+      advTight.setValue(80);
+      // Reset after 3s
+      setTimeout(() => {
+        advLoose.setValue(0);
+        advTight.setValue(0);
+      }, 3000);
+    });
+
+    // ── Sidebar active tracking ──
+    const sidebarLinks = document.querySelectorAll('.sidebar a');
+    const sections = document.querySelectorAll('.content section');
+
+    // Populate mobile tabs from sidebar
+    const mobileTabs = document.getElementById('mobile-tabs');
+    sidebarLinks.forEach(link => {
+      const clone = link.cloneNode(true);
+      mobileTabs.appendChild(clone);
+    });
+
+    const allNavLinks = document.querySelectorAll('.sidebar a, .mobile-tabs a');
+
+    const observer = new IntersectionObserver((entries) => {
+      for (const entry of entries) {
+        if (entry.isIntersecting) {
+          const id = entry.target.id;
+          allNavLinks.forEach(link => {
+            link.classList.toggle('active', link.getAttribute('href') === `#${id}`);
+          });
+        }
+      }
+    }, { rootMargin: '-20% 0px -70% 0px' });
+
+    sections.forEach(section => observer.observe(section));
+
+    // ── Copy buttons ──
+    document.querySelectorAll('.copy-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const pre = btn.parentElement.querySelector('pre');
+        const text = pre.textContent;
+        navigator.clipboard.writeText(text).then(() => {
+          btn.textContent = 'Copied!';
+          setTimeout(() => btn.textContent = 'Copy', 1500);
+        });
+      });
+    });
+  </script>
+</body>
+</html>

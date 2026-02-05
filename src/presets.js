@@ -16,6 +16,11 @@ export const defaults = {
   endAngle: 45,
   stiffness: 120,
   damping: 18,
+  faceStyle: 'light',
+  colors: {},
+  zones: [],
+  showDigitalValue: false,
+  texts: [],
 };
 
 export const presets = {

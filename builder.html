@@ -1,0 +1,1432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gauge Builder</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@300;400;500&family=Bebas+Neue&display=swap');
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg-dark: #0a0a0c;
+      --bg-panel: #121216;
+      --surface: #1a1a1f;
+      --surface-elevated: #242429;
+      --text-primary: #f5f5f7;
+      --text-secondary: #8e8e93;
+      --accent: #ff3b30;
+      --accent-glow: rgba(255, 59, 48, 0.3);
+      --border: rgba(255, 255, 255, 0.08);
+      --code-bg: #1e1e2e;
+    }
+
+    html, body {
+      height: 100%;
+      font-family: 'Oswald', system-ui, sans-serif;
+      background: var(--bg-dark);
+      color: var(--text-primary);
+      overflow-x: hidden;
+    }
+
+    body {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      background: linear-gradient(180deg, var(--bg-dark) 0%, #050507 100%);
+    }
+
+    /* Header */
+    header {
+      padding: 24px 32px 0;
+      text-align: center;
+      border-bottom: 1px solid var(--border);
+    }
+
+    h1 {
+      font-family: 'Bebas Neue', 'Oswald', sans-serif;
+      font-size: clamp(24px, 4vw, 40px);
+      font-weight: 400;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      background: linear-gradient(135deg, #fff 0%, #b0b0b0 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .subtitle {
+      font-size: 13px;
+      font-weight: 300;
+      letter-spacing: 2px;
+      color: var(--text-secondary);
+      margin-top: 4px;
+      text-transform: uppercase;
+    }
+
+    .page-nav {
+      display: flex;
+      justify-content: center;
+      gap: 32px;
+      padding: 16px 0;
+    }
+
+    .nav-link {
+      font-family: 'Oswald', sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+      text-decoration: none;
+      padding: 4px 0;
+      border-bottom: 2px solid transparent;
+      transition: all 0.2s;
+    }
+
+    .nav-link:hover { color: var(--text-primary); }
+    .nav-link.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+    /* Builder layout */
+    .builder-layout {
+      display: grid;
+      grid-template-columns: 1fr 380px;
+      flex: 1;
+      min-height: 0;
+    }
+
+    /* Gauge preview */
+    .preview-panel {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 32px;
+      position: relative;
+    }
+
+    .preview-container {
+      width: 400px;
+      height: 400px;
+      position: relative;
+    }
+
+    #gauge-preview {
+      width: 100%;
+      height: 100%;
+    }
+
+    /* Text drag overlay */
+    .text-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+    }
+
+    .text-overlay .drag-handle {
+      position: absolute;
+      pointer-events: all;
+      cursor: grab;
+      font-size: 12px;
+      font-family: 'Oswald', sans-serif;
+      color: rgba(255, 255, 255, 0.6);
+      background: rgba(255, 59, 48, 0.3);
+      border: 1px dashed rgba(255, 59, 48, 0.5);
+      padding: 2px 6px;
+      border-radius: 3px;
+      white-space: nowrap;
+      transform: translate(-50%, -50%);
+      user-select: none;
+    }
+
+    .text-overlay .drag-handle:active { cursor: grabbing; }
+
+    /* Controls panel */
+    .controls-panel {
+      background: var(--surface);
+      border-left: 1px solid var(--border);
+      overflow-y: auto;
+      padding: 16px;
+    }
+
+    /* Details groups */
+    details {
+      margin-bottom: 8px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    details[open] { background: rgba(255, 255, 255, 0.02); }
+
+    summary {
+      padding: 10px 14px;
+      font-size: 13px;
+      font-weight: 500;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+      cursor: pointer;
+      background: var(--surface-elevated);
+      list-style: none;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    summary::-webkit-details-marker { display: none; }
+    summary::before { content: '\25B6'; font-size: 10px; transition: transform 0.2s; }
+    details[open] summary::before { transform: rotate(90deg); }
+
+    .control-content { padding: 12px 14px; }
+
+    /* Form elements */
+    .field {
+      margin-bottom: 10px;
+    }
+
+    .field-label {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11px;
+      font-weight: 400;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+      margin-bottom: 4px;
+    }
+
+    .field-label .field-value {
+      font-family: 'Oswald', monospace;
+      font-size: 12px;
+      color: var(--text-primary);
+    }
+
+    input[type="text"],
+    input[type="number"] {
+      width: 100%;
+      padding: 6px 10px;
+      background: var(--bg-dark);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      color: var(--text-primary);
+      font-family: 'Oswald', sans-serif;
+      font-size: 13px;
+      outline: none;
+    }
+
+    input[type="text"]:focus,
+    input[type="number"]:focus {
+      border-color: var(--accent);
+    }
+
+    input[type="range"] {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+      height: 5px;
+      background: var(--bg-dark);
+      border-radius: 3px;
+      outline: none;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 14px;
+      height: 14px;
+      background: linear-gradient(145deg, #fff, #c0c0c0);
+      border-radius: 50%;
+      cursor: pointer;
+    }
+
+    input[type="range"]::-moz-range-thumb {
+      width: 14px;
+      height: 14px;
+      background: linear-gradient(145deg, #fff, #c0c0c0);
+      border-radius: 50%;
+      cursor: pointer;
+      border: none;
+    }
+
+    input[type="color"] {
+      width: 32px;
+      height: 24px;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      background: none;
+      cursor: pointer;
+      padding: 0;
+    }
+
+    select {
+      width: 100%;
+      padding: 6px 10px;
+      background: var(--bg-dark);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      color: var(--text-primary);
+      font-family: 'Oswald', sans-serif;
+      font-size: 13px;
+      outline: none;
+    }
+
+    label.checkbox {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      color: var(--text-secondary);
+      cursor: pointer;
+      letter-spacing: 0.5px;
+    }
+
+    label.checkbox input { accent-color: var(--accent); }
+
+    .inline-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .inline-row .field { flex: 1; margin-bottom: 0; }
+
+    /* Action buttons */
+    .btn {
+      font-family: 'Oswald', sans-serif;
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      padding: 5px 12px;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      background: var(--surface-elevated);
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn:hover { color: var(--text-primary); background: #2a2a30; }
+    .btn.accent {
+      background: linear-gradient(135deg, var(--accent), #cc2020);
+      border-color: transparent;
+      color: white;
+    }
+    .btn.danger { color: #ff6b6b; }
+    .btn.danger:hover { background: rgba(255, 59, 48, 0.15); }
+
+    /* Zone entry */
+    .zone-entry, .text-entry {
+      background: var(--bg-dark);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 8px;
+      margin-bottom: 8px;
+    }
+
+    .zone-entry .zone-row, .text-entry .text-row {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .zone-entry input[type="number"],
+    .text-entry input[type="text"],
+    .text-entry input[type="number"] {
+      width: 60px;
+      flex-shrink: 0;
+    }
+
+    .text-entry input[type="text"] { width: 100px; }
+
+    .small-label {
+      font-size: 10px;
+      color: var(--text-secondary);
+      letter-spacing: 0.5px;
+    }
+
+    /* Angle indicator canvas */
+    #angle-canvas {
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      display: block;
+      margin: 8px auto;
+    }
+
+    /* Toggle */
+    .toggle-group {
+      display: flex;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .toggle-group button {
+      flex: 1;
+      padding: 5px 12px;
+      font-family: 'Oswald', sans-serif;
+      font-size: 11px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      border: none;
+      background: transparent;
+      color: var(--text-secondary);
+      cursor: pointer;
+    }
+
+    .toggle-group button.active {
+      background: var(--accent);
+      color: white;
+    }
+
+    /* Code panel */
+    .code-panel {
+      border-top: 1px solid var(--border);
+      background: var(--code-bg);
+      padding: 16px;
+    }
+
+    .code-panel textarea {
+      width: 100%;
+      height: 160px;
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 12px;
+      font-family: 'Courier New', monospace;
+      font-size: 13px;
+      line-height: 1.5;
+      color: #abb2bf;
+      resize: vertical;
+      outline: none;
+    }
+
+    .code-panel textarea:focus { border-color: var(--accent); }
+
+    .code-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      margin-top: 8px;
+      align-items: center;
+    }
+
+    .code-error {
+      color: #ff6b6b;
+      font-size: 12px;
+      font-family: 'Courier New', monospace;
+      flex: 1;
+    }
+
+    /* Color row */
+    .color-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+
+    .color-row .color-label {
+      font-size: 11px;
+      color: var(--text-secondary);
+      letter-spacing: 0.5px;
+      width: 80px;
+      text-transform: uppercase;
+    }
+
+    .color-row .btn { padding: 3px 8px; font-size: 10px; }
+
+    /* Responsive */
+    @media (max-width: 900px) {
+      .builder-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .preview-panel {
+        padding: 16px;
+      }
+
+      .preview-container {
+        width: 280px;
+        height: 280px;
+      }
+
+      .controls-panel {
+        border-left: none;
+        border-top: 1px solid var(--border);
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Gauge Builder</h1>
+    <p class="subtitle">Interactive Configuration Playground</p>
+    <nav class="page-nav">
+      <a href="index.html" class="nav-link">Demo</a>
+      <a href="docs.html" class="nav-link">Docs</a>
+      <a href="builder.html" class="nav-link active">Builder</a>
+    </nav>
+  </header>
+
+  <div class="builder-layout">
+    <div class="preview-panel">
+      <div class="preview-container">
+        <div id="gauge-preview"></div>
+        <div class="text-overlay" id="text-overlay"></div>
+      </div>
+    </div>
+
+    <div class="controls-panel">
+
+      <!-- 1. Preset -->
+      <details open>
+        <summary>Preset</summary>
+        <div class="control-content">
+          <select id="preset-select">
+            <option value="custom">Custom</option>
+            <option value="speed">speed</option>
+            <option value="rpm">rpm</option>
+            <option value="volt">volt</option>
+            <option value="temp">temp</option>
+            <option value="oilPressure">oilPressure</option>
+            <option value="oilLevel">oilLevel</option>
+          </select>
+        </div>
+      </details>
+
+      <!-- 2. Range -->
+      <details>
+        <summary>Range</summary>
+        <div class="control-content">
+          <div class="inline-row">
+            <div class="field">
+              <div class="field-label">Min</div>
+              <input type="number" id="cfg-min" value="0">
+            </div>
+            <div class="field">
+              <div class="field-label">Max</div>
+              <input type="number" id="cfg-max" value="100">
+            </div>
+          </div>
+        </div>
+      </details>
+
+      <!-- 3. Labels -->
+      <details>
+        <summary>Labels</summary>
+        <div class="control-content">
+          <div class="field">
+            <div class="field-label">Label</div>
+            <input type="text" id="cfg-label" value="">
+          </div>
+          <div class="field">
+            <div class="field-label">Units</div>
+            <input type="text" id="cfg-units" value="">
+          </div>
+          <div class="field">
+            <label class="checkbox">
+              <input type="checkbox" id="cfg-customLabels-enabled">
+              Custom Labels
+            </label>
+          </div>
+          <div class="field" id="customLabels-field" style="display: none;">
+            <div class="field-label">Labels (comma separated)</div>
+            <input type="text" id="cfg-customLabels" placeholder="E,,F">
+          </div>
+        </div>
+      </details>
+
+      <!-- 4. Appearance -->
+      <details>
+        <summary>Appearance</summary>
+        <div class="control-content">
+          <div class="inline-row" style="margin-bottom: 10px;">
+            <div class="field">
+              <div class="field-label">Major Ticks</div>
+              <input type="number" id="cfg-majorTicks" value="5" min="2" max="20">
+            </div>
+            <div class="field">
+              <div class="field-label">Minor Ticks</div>
+              <input type="number" id="cfg-minorTicks" value="4" min="0" max="10">
+            </div>
+          </div>
+
+          <div class="field">
+            <label class="checkbox">
+              <input type="checkbox" id="cfg-redlineStart-enabled">
+              Redline Start
+            </label>
+          </div>
+          <div class="field" id="redlineStart-field" style="display: none;">
+            <input type="number" id="cfg-redlineStart" value="80">
+          </div>
+
+          <div class="field">
+            <label class="checkbox">
+              <input type="checkbox" id="cfg-dangerStart-enabled">
+              Danger Start
+            </label>
+          </div>
+          <div class="field" id="dangerStart-field" style="display: none;">
+            <input type="number" id="cfg-dangerStart" value="90">
+          </div>
+
+          <div class="field">
+            <label class="checkbox">
+              <input type="checkbox" id="cfg-showOdometer">
+              Show Odometer
+            </label>
+          </div>
+
+          <div class="field">
+            <label class="checkbox">
+              <input type="checkbox" id="cfg-showDigitalValue">
+              Show Digital Value
+            </label>
+          </div>
+
+          <div class="field">
+            <div class="field-label">Face Style</div>
+            <div class="toggle-group">
+              <button class="active" data-face="light" id="face-light">Light</button>
+              <button data-face="dark" id="face-dark">Dark</button>
+            </div>
+          </div>
+
+          <!-- Zones -->
+          <div class="field" style="margin-top: 10px;">
+            <div class="field-label">Zones <button class="btn" id="add-zone" style="font-size: 10px; padding: 2px 8px;">+ Add</button></div>
+            <div id="zones-container"></div>
+          </div>
+        </div>
+      </details>
+
+      <!-- 5. Angles -->
+      <details>
+        <summary>Angles</summary>
+        <div class="control-content">
+          <div class="field">
+            <div class="field-label">Start Angle <span class="field-value" id="startAngle-val">-225</span></div>
+            <input type="range" id="cfg-startAngle" min="-360" max="360" value="-225">
+          </div>
+          <div class="field">
+            <div class="field-label">End Angle <span class="field-value" id="endAngle-val">45</span></div>
+            <input type="range" id="cfg-endAngle" min="-360" max="360" value="45">
+          </div>
+          <canvas id="angle-canvas" width="80" height="80"></canvas>
+        </div>
+      </details>
+
+      <!-- 6. Colors -->
+      <details>
+        <summary>Colors</summary>
+        <div class="control-content">
+          <div id="colors-container"></div>
+          <button class="btn" id="reset-all-colors" style="margin-top: 8px;">Reset All Colors</button>
+        </div>
+      </details>
+
+      <!-- 7. Texts -->
+      <details>
+        <summary>Texts</summary>
+        <div class="control-content">
+          <button class="btn" id="add-text">+ Add Text</button>
+          <div id="texts-container" style="margin-top: 8px;"></div>
+        </div>
+      </details>
+
+      <!-- 8. Physics -->
+      <details>
+        <summary>Physics</summary>
+        <div class="control-content">
+          <div class="field">
+            <div class="field-label">Stiffness <span class="field-value" id="stiffness-val">120</span></div>
+            <input type="range" id="cfg-stiffness" min="10" max="500" value="120">
+          </div>
+          <div class="field">
+            <div class="field-label">Damping <span class="field-value" id="damping-val">18</span></div>
+            <input type="range" id="cfg-damping" min="1" max="50" value="18">
+          </div>
+        </div>
+      </details>
+
+      <!-- 9. Value -->
+      <details open>
+        <summary>Value</summary>
+        <div class="control-content">
+          <div class="field">
+            <div class="field-label">Current Value <span class="field-value" id="value-val">0</span></div>
+            <input type="range" id="cfg-value" min="0" max="100" value="0">
+          </div>
+          <div class="field">
+            <label class="checkbox">
+              <input type="checkbox" id="cfg-immediate">
+              Immediate (no animation)
+            </label>
+          </div>
+          <button class="btn accent" id="btn-sweep" style="width: 100%; margin-top: 4px;">Sweep</button>
+        </div>
+      </details>
+
+    </div>
+  </div>
+
+  <!-- Code panel -->
+  <div class="code-panel">
+    <textarea id="code-output" spellcheck="false"></textarea>
+    <div class="code-actions">
+      <span class="code-error" id="code-error"></span>
+      <button class="btn" id="btn-copy">Copy</button>
+      <button class="btn accent" id="btn-apply">Apply (Ctrl+Enter)</button>
+    </div>
+  </div>
+
+  <script type="module">
+    import { Gauge, presets, defaults } from './src/index.js';
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // STATE
+    // ═══════════════════════════════════════════════════════════════════════
+
+    let state = {
+      config: { ...defaults },
+      value: 0,
+      immediate: false,
+    };
+
+    let currentGauge = null;
+    let _suppressSync = false;
+    const container = document.getElementById('gauge-preview');
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // GAUGE LIFECYCLE
+    // ═══════════════════════════════════════════════════════════════════════
+
+    function rebuildGauge() {
+      if (currentGauge) {
+        currentGauge.destroy();
+      }
+      container.innerHTML = '';
+      currentGauge = new Gauge(container, { ...state.config });
+      currentGauge.setValue(state.value, { immediate: true });
+      updateTextOverlay();
+    }
+
+    function updateValue() {
+      if (currentGauge) {
+        currentGauge.setValue(state.value, { immediate: state.immediate });
+      }
+    }
+
+    function updatePhysics() {
+      if (currentGauge && currentGauge._physics) {
+        currentGauge._physics.stiffness = state.config.stiffness;
+        currentGauge._physics.damping = state.config.damping;
+      }
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // UI → STATE → GAUGE + CODE
+    // ═══════════════════════════════════════════════════════════════════════
+
+    function updateFromUI(key, val, physicsOnly = false) {
+      if (_suppressSync) return;
+
+      if (key === 'value') {
+        state.value = val;
+        updateValue();
+      } else if (key === 'immediate') {
+        state.immediate = val;
+      } else {
+        state.config[key] = val;
+        if (physicsOnly) {
+          updatePhysics();
+        } else {
+          rebuildGauge();
+        }
+      }
+      updateCodePanel();
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // CODE PANEL
+    // ═══════════════════════════════════════════════════════════════════════
+
+    const codeOutput = document.getElementById('code-output');
+    const codeError = document.getElementById('code-error');
+
+    function updateCodePanel() {
+      if (_suppressSync) return;
+
+      const cfg = state.config;
+      const lines = [];
+
+      // Only emit keys that differ from defaults
+      for (const [key, val] of Object.entries(cfg)) {
+        if (key === 'colors') {
+          if (val && Object.keys(val).length > 0) {
+            const inner = Object.entries(val).map(([k, v]) => `    ${k}: '${v}'`).join(',\n');
+            lines.push(`  colors: {\n${inner}\n  }`);
+          }
+          continue;
+        }
+        if (key === 'zones') {
+          if (val && val.length > 0) {
+            const inner = val.map(z => `    { start: ${z.start}, end: ${z.end}, color: '${z.color}' }`).join(',\n');
+            lines.push(`  zones: [\n${inner}\n  ]`);
+          }
+          continue;
+        }
+        if (key === 'texts') {
+          if (val && val.length > 0) {
+            const inner = val.map(t => `    { text: '${t.text}', x: ${t.x}, y: ${t.y} }`).join(',\n');
+            lines.push(`  texts: [\n${inner}\n  ]`);
+          }
+          continue;
+        }
+        if (key === 'customLabels') {
+          if (val) {
+            lines.push(`  customLabels: [${val.map(v => `'${v}'`).join(', ')}]`);
+          }
+          continue;
+        }
+
+        const def = defaults[key];
+        if (val === def) continue;
+        if (val === undefined || val === null) continue;
+
+        if (typeof val === 'string') {
+          lines.push(`  ${key}: '${val}'`);
+        } else if (typeof val === 'boolean') {
+          lines.push(`  ${key}: ${val}`);
+        } else {
+          lines.push(`  ${key}: ${val}`);
+        }
+      }
+
+      let code = `const gauge = new Gauge(el, {\n${lines.join(',\n')}\n});`;
+      if (state.value !== 0) {
+        code += `\ngauge.setValue(${state.value});`;
+      }
+
+      _suppressSync = true;
+      codeOutput.value = code;
+      _suppressSync = false;
+      codeError.textContent = '';
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // CODE → STATE → GAUGE + UI
+    // ═══════════════════════════════════════════════════════════════════════
+
+    function applyFromCode(text) {
+      try {
+        // Extract config object from: new Gauge(..., { ... })
+        const configMatch = text.match(/new\s+Gauge\s*\([^,]*,\s*(\{[\s\S]*?\})\s*\)/);
+        if (!configMatch) throw new Error('Could not find Gauge constructor');
+
+        let configStr = configMatch[1];
+        // Normalize: add quotes to keys, swap single→double, strip trailing commas
+        configStr = configStr
+          .replace(/(\w+)\s*:/g, '"$1":')
+          .replace(/'/g, '"')
+          .replace(/,\s*([\]}])/g, '$1')
+          // Handle unquoted true/false
+          .replace(/"(true|false)"/g, '$1');
+
+        const parsed = JSON.parse(configStr);
+
+        // Extract setValue
+        const valueMatch = text.match(/setValue\(\s*(\d+(?:\.\d+)?)/);
+        const value = valueMatch ? parseFloat(valueMatch[1]) : 0;
+
+        state.config = { ...defaults, ...parsed };
+        state.value = value;
+
+        _suppressSync = true;
+        updateAllControls();
+        _suppressSync = false;
+
+        rebuildGauge();
+        codeError.textContent = '';
+      } catch (err) {
+        codeError.textContent = 'Parse error: ' + err.message;
+      }
+    }
+
+    document.getElementById('btn-apply').addEventListener('click', () => applyFromCode(codeOutput.value));
+    document.getElementById('btn-copy').addEventListener('click', () => {
+      navigator.clipboard.writeText(codeOutput.value);
+    });
+
+    codeOutput.addEventListener('keydown', (e) => {
+      if (e.ctrlKey && e.key === 'Enter') {
+        e.preventDefault();
+        applyFromCode(codeOutput.value);
+      }
+    });
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // CONTROL BINDINGS
+    // ═══════════════════════════════════════════════════════════════════════
+
+    // Preset
+    document.getElementById('preset-select').addEventListener('change', (e) => {
+      const name = e.target.value;
+      if (name === 'custom') {
+        state.config = { ...defaults };
+      } else {
+        state.config = { ...defaults, ...presets[name] };
+      }
+      state.value = state.config.min;
+      _suppressSync = true;
+      updateAllControls();
+      _suppressSync = false;
+      rebuildGauge();
+      updateCodePanel();
+    });
+
+    // Range
+    bindNumber('cfg-min', 'min');
+    bindNumber('cfg-max', 'max', () => {
+      document.getElementById('cfg-value').max = state.config.max;
+      document.getElementById('cfg-value').min = state.config.min;
+    });
+
+    // Labels
+    bindText('cfg-label', 'label');
+    bindText('cfg-units', 'units');
+
+    document.getElementById('cfg-customLabels-enabled').addEventListener('change', (e) => {
+      document.getElementById('customLabels-field').style.display = e.target.checked ? 'block' : 'none';
+      if (!e.target.checked) {
+        delete state.config.customLabels;
+        rebuildGauge();
+        updateCodePanel();
+      }
+    });
+
+    document.getElementById('cfg-customLabels').addEventListener('input', (e) => {
+      const labels = e.target.value.split(',');
+      updateFromUI('customLabels', labels);
+    });
+
+    // Appearance
+    bindNumber('cfg-majorTicks', 'majorTicks');
+    bindNumber('cfg-minorTicks', 'minorTicks');
+
+    bindCheckboxNumber('cfg-redlineStart-enabled', 'cfg-redlineStart', 'redlineStart', 'redlineStart-field');
+    bindCheckboxNumber('cfg-dangerStart-enabled', 'cfg-dangerStart', 'dangerStart', 'dangerStart-field');
+
+    bindCheckbox('cfg-showOdometer', 'showOdometer');
+    bindCheckbox('cfg-showDigitalValue', 'showDigitalValue');
+
+    // Face style toggle
+    document.getElementById('face-light').addEventListener('click', () => {
+      document.getElementById('face-light').classList.add('active');
+      document.getElementById('face-dark').classList.remove('active');
+      updateFromUI('faceStyle', 'light');
+    });
+    document.getElementById('face-dark').addEventListener('click', () => {
+      document.getElementById('face-dark').classList.add('active');
+      document.getElementById('face-light').classList.remove('active');
+      updateFromUI('faceStyle', 'dark');
+    });
+
+    // Angles
+    bindSlider('cfg-startAngle', 'startAngle', 'startAngle-val', drawAngleIndicator);
+    bindSlider('cfg-endAngle', 'endAngle', 'endAngle-val', drawAngleIndicator);
+
+    // Physics (only update physics, not full rebuild)
+    document.getElementById('cfg-stiffness').addEventListener('input', (e) => {
+      const val = parseInt(e.target.value);
+      document.getElementById('stiffness-val').textContent = val;
+      updateFromUI('stiffness', val, true);
+    });
+
+    document.getElementById('cfg-damping').addEventListener('input', (e) => {
+      const val = parseInt(e.target.value);
+      document.getElementById('damping-val').textContent = val;
+      updateFromUI('damping', val, true);
+    });
+
+    // Value
+    document.getElementById('cfg-value').addEventListener('input', (e) => {
+      const val = parseFloat(e.target.value);
+      document.getElementById('value-val').textContent = Math.round(val);
+      state.value = val;
+      updateValue();
+      updateCodePanel();
+    });
+
+    document.getElementById('cfg-immediate').addEventListener('change', (e) => {
+      state.immediate = e.target.checked;
+    });
+
+    document.getElementById('btn-sweep').addEventListener('click', () => {
+      if (currentGauge) currentGauge.sweep();
+    });
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // ZONES
+    // ═══════════════════════════════════════════════════════════════════════
+
+    document.getElementById('add-zone').addEventListener('click', () => {
+      if (!state.config.zones) state.config.zones = [];
+      state.config.zones.push({ start: 70, end: 90, color: 'rgba(255, 165, 0, 0.15)' });
+      renderZones();
+      rebuildGauge();
+      updateCodePanel();
+    });
+
+    function renderZones() {
+      const container = document.getElementById('zones-container');
+      container.innerHTML = '';
+      const zones = state.config.zones || [];
+
+      zones.forEach((zone, i) => {
+        const entry = document.createElement('div');
+        entry.className = 'zone-entry';
+        entry.innerHTML = `
+          <div class="zone-row">
+            <span class="small-label">Start</span>
+            <input type="number" value="${zone.start}" data-zone="${i}" data-field="start">
+            <span class="small-label">End</span>
+            <input type="number" value="${zone.end}" data-zone="${i}" data-field="end">
+            <input type="color" value="${rgbaToHex(zone.color)}" data-zone="${i}" data-field="color">
+            <button class="btn danger" data-zone-remove="${i}">&times;</button>
+          </div>`;
+        container.appendChild(entry);
+      });
+
+      // Bind zone inputs
+      container.querySelectorAll('input[data-zone]').forEach(input => {
+        input.addEventListener('change', (e) => {
+          const idx = parseInt(e.target.dataset.zone);
+          const field = e.target.dataset.field;
+          if (field === 'color') {
+            const hex = e.target.value;
+            state.config.zones[idx].color = hexToRgba(hex, 0.15);
+          } else {
+            state.config.zones[idx][field] = parseFloat(e.target.value);
+          }
+          rebuildGauge();
+          updateCodePanel();
+        });
+      });
+
+      container.querySelectorAll('[data-zone-remove]').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const idx = parseInt(e.target.dataset.zoneRemove);
+          state.config.zones.splice(idx, 1);
+          renderZones();
+          rebuildGauge();
+          updateCodePanel();
+        });
+      });
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // COLORS
+    // ═══════════════════════════════════════════════════════════════════════
+
+    const colorKeys = ['face', 'needle', 'ticks', 'minorTicks', 'numbers', 'label', 'units', 'redline'];
+    const lightDefaults = {
+      face: '#FEFEFE', needle: '#CC1010', ticks: '#1A1A1A', minorTicks: '#404040',
+      numbers: '#1A1A1A', label: '#2A2A2A', units: '#555555', redline: '#CC2020'
+    };
+    const darkDefaults = {
+      face: '#1A1A1A', needle: '#CC1010', ticks: '#E0E0E0', minorTicks: '#888888',
+      numbers: '#D0D0D0', label: '#E0E0E0', units: '#AAAAAA', redline: '#FF4040'
+    };
+
+    function renderColors() {
+      const container = document.getElementById('colors-container');
+      container.innerHTML = '';
+      const isDark = state.config.faceStyle === 'dark';
+      const defs = isDark ? darkDefaults : lightDefaults;
+      const colors = state.config.colors || {};
+
+      colorKeys.forEach(key => {
+        const row = document.createElement('div');
+        row.className = 'color-row';
+        const currentVal = colors[key] || defs[key];
+        row.innerHTML = `
+          <span class="color-label">${key}</span>
+          <input type="color" value="${currentVal}" data-color-key="${key}">
+          <button class="btn" data-color-reset="${key}">Reset</button>`;
+        container.appendChild(row);
+      });
+
+      container.querySelectorAll('input[data-color-key]').forEach(input => {
+        input.addEventListener('input', (e) => {
+          const key = e.target.dataset.colorKey;
+          if (!state.config.colors) state.config.colors = {};
+          state.config.colors[key] = e.target.value;
+          rebuildGauge();
+          updateCodePanel();
+        });
+      });
+
+      container.querySelectorAll('[data-color-reset]').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const key = e.target.dataset.colorReset;
+          if (state.config.colors) {
+            delete state.config.colors[key];
+            if (Object.keys(state.config.colors).length === 0) {
+              state.config.colors = {};
+            }
+          }
+          renderColors();
+          rebuildGauge();
+          updateCodePanel();
+        });
+      });
+    }
+
+    document.getElementById('reset-all-colors').addEventListener('click', () => {
+      state.config.colors = {};
+      renderColors();
+      rebuildGauge();
+      updateCodePanel();
+    });
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // TEXTS
+    // ═══════════════════════════════════════════════════════════════════════
+
+    document.getElementById('add-text').addEventListener('click', () => {
+      if (!state.config.texts) state.config.texts = [];
+      state.config.texts.push({ text: 'TEXT', x: 0, y: -0.25 });
+      renderTexts();
+      rebuildGauge();
+      updateCodePanel();
+    });
+
+    function renderTexts() {
+      const container = document.getElementById('texts-container');
+      container.innerHTML = '';
+      const texts = state.config.texts || [];
+
+      texts.forEach((t, i) => {
+        const entry = document.createElement('div');
+        entry.className = 'text-entry';
+        entry.innerHTML = `
+          <div class="text-row">
+            <input type="text" value="${t.text}" data-text="${i}" data-field="text" placeholder="Text">
+            <span class="small-label">X</span>
+            <input type="number" value="${t.x}" step="0.05" min="-1" max="1" data-text="${i}" data-field="x" style="width:55px">
+            <span class="small-label">Y</span>
+            <input type="number" value="${t.y}" step="0.05" min="-1" max="1" data-text="${i}" data-field="y" style="width:55px">
+            <button class="btn danger" data-text-remove="${i}">&times;</button>
+          </div>`;
+        container.appendChild(entry);
+      });
+
+      container.querySelectorAll('input[data-text]').forEach(input => {
+        input.addEventListener('input', (e) => {
+          const idx = parseInt(e.target.dataset.text);
+          const field = e.target.dataset.field;
+          if (field === 'text') {
+            state.config.texts[idx].text = e.target.value;
+          } else {
+            state.config.texts[idx][field] = parseFloat(e.target.value) || 0;
+          }
+          rebuildGauge();
+          updateCodePanel();
+        });
+      });
+
+      container.querySelectorAll('[data-text-remove]').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const idx = parseInt(e.target.dataset.textRemove);
+          state.config.texts.splice(idx, 1);
+          renderTexts();
+          rebuildGauge();
+          updateCodePanel();
+        });
+      });
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // TEXT DRAG AND DROP
+    // ═══════════════════════════════════════════════════════════════════════
+
+    function updateTextOverlay() {
+      const overlay = document.getElementById('text-overlay');
+      overlay.innerHTML = '';
+      const texts = state.config.texts || [];
+      if (texts.length === 0) return;
+
+      const rect = overlay.getBoundingClientRect();
+      const size = Math.min(rect.width, rect.height);
+      const centerX = rect.width / 2;
+      const centerY = rect.height / 2;
+      const radius = size * 0.45;
+
+      texts.forEach((t, i) => {
+        const handle = document.createElement('div');
+        handle.className = 'drag-handle';
+        handle.textContent = t.text;
+        handle.style.left = (centerX + t.x * radius) + 'px';
+        handle.style.top = (centerY + t.y * radius) + 'px';
+        handle.dataset.textIdx = i;
+        overlay.appendChild(handle);
+
+        // Drag handling
+        let dragging = false;
+        handle.addEventListener('mousedown', (e) => {
+          dragging = true;
+          e.preventDefault();
+        });
+
+        window.addEventListener('mousemove', (e) => {
+          if (!dragging) return;
+          const overlayRect = overlay.getBoundingClientRect();
+          const cx = overlayRect.width / 2;
+          const cy = overlayRect.height / 2;
+          const r = Math.min(overlayRect.width, overlayRect.height) * 0.45;
+          const mx = e.clientX - overlayRect.left;
+          const my = e.clientY - overlayRect.top;
+          const newX = Math.round(((mx - cx) / r) * 100) / 100;
+          const newY = Math.round(((my - cy) / r) * 100) / 100;
+
+          state.config.texts[i].x = Math.max(-1, Math.min(1, newX));
+          state.config.texts[i].y = Math.max(-1, Math.min(1, newY));
+
+          handle.style.left = mx + 'px';
+          handle.style.top = my + 'px';
+        });
+
+        window.addEventListener('mouseup', () => {
+          if (dragging) {
+            dragging = false;
+            rebuildGauge();
+            renderTexts();
+            updateCodePanel();
+          }
+        });
+      });
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // ANGLE INDICATOR
+    // ═══════════════════════════════════════════════════════════════════════
+
+    function drawAngleIndicator() {
+      const canvas = document.getElementById('angle-canvas');
+      const ctx = canvas.getContext('2d');
+      const w = canvas.width;
+      const h = canvas.height;
+      const cx = w / 2;
+      const cy = h / 2;
+      const r = 30;
+
+      ctx.clearRect(0, 0, w, h);
+
+      // Circle
+      ctx.beginPath();
+      ctx.arc(cx, cy, r, 0, Math.PI * 2);
+      ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+
+      const sa = (state.config.startAngle - 90) * Math.PI / 180;
+      const ea = (state.config.endAngle - 90) * Math.PI / 180;
+
+      // Sweep arc
+      ctx.beginPath();
+      ctx.arc(cx, cy, r, sa, ea);
+      ctx.strokeStyle = 'rgba(255, 59, 48, 0.6)';
+      ctx.lineWidth = 3;
+      ctx.stroke();
+
+      // Start line
+      ctx.beginPath();
+      ctx.moveTo(cx, cy);
+      ctx.lineTo(cx + Math.cos(sa) * r, cy + Math.sin(sa) * r);
+      ctx.strokeStyle = '#4cd964';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      // End line
+      ctx.beginPath();
+      ctx.moveTo(cx, cy);
+      ctx.lineTo(cx + Math.cos(ea) * r, cy + Math.sin(ea) * r);
+      ctx.strokeStyle = '#ff3b30';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // HELPER FUNCTIONS
+    // ═══════════════════════════════════════════════════════════════════════
+
+    function bindNumber(inputId, key, extraCb) {
+      document.getElementById(inputId).addEventListener('change', (e) => {
+        updateFromUI(key, parseFloat(e.target.value));
+        if (extraCb) extraCb();
+      });
+    }
+
+    function bindText(inputId, key) {
+      document.getElementById(inputId).addEventListener('input', (e) => {
+        updateFromUI(key, e.target.value);
+      });
+    }
+
+    function bindCheckbox(inputId, key) {
+      document.getElementById(inputId).addEventListener('change', (e) => {
+        updateFromUI(key, e.target.checked);
+      });
+    }
+
+    function bindCheckboxNumber(checkId, inputId, key, fieldId) {
+      document.getElementById(checkId).addEventListener('change', (e) => {
+        document.getElementById(fieldId).style.display = e.target.checked ? 'block' : 'none';
+        if (e.target.checked) {
+          updateFromUI(key, parseFloat(document.getElementById(inputId).value));
+        } else {
+          delete state.config[key];
+          rebuildGauge();
+          updateCodePanel();
+        }
+      });
+
+      document.getElementById(inputId).addEventListener('change', (e) => {
+        if (document.getElementById(checkId).checked) {
+          updateFromUI(key, parseFloat(e.target.value));
+        }
+      });
+    }
+
+    function bindSlider(inputId, key, valId, extraCb) {
+      document.getElementById(inputId).addEventListener('input', (e) => {
+        const val = parseInt(e.target.value);
+        document.getElementById(valId).textContent = val;
+        updateFromUI(key, val);
+        if (extraCb) extraCb();
+      });
+    }
+
+    function rgbaToHex(rgba) {
+      const match = rgba.match(/(\d+)\s*,\s*(\d+)\s*,\s*(\d+)/);
+      if (!match) return '#ff9900';
+      const r = parseInt(match[1]).toString(16).padStart(2, '0');
+      const g = parseInt(match[2]).toString(16).padStart(2, '0');
+      const b = parseInt(match[3]).toString(16).padStart(2, '0');
+      return '#' + r + g + b;
+    }
+
+    function hexToRgba(hex, alpha) {
+      const r = parseInt(hex.slice(1, 3), 16);
+      const g = parseInt(hex.slice(3, 5), 16);
+      const b = parseInt(hex.slice(5, 7), 16);
+      return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // UPDATE ALL CONTROLS FROM STATE
+    // ═══════════════════════════════════════════════════════════════════════
+
+    function updateAllControls() {
+      const cfg = state.config;
+
+      document.getElementById('cfg-min').value = cfg.min;
+      document.getElementById('cfg-max').value = cfg.max;
+      document.getElementById('cfg-label').value = cfg.label || '';
+      document.getElementById('cfg-units').value = cfg.units || '';
+      document.getElementById('cfg-majorTicks').value = cfg.majorTicks;
+      document.getElementById('cfg-minorTicks').value = cfg.minorTicks;
+
+      // Custom labels
+      if (cfg.customLabels) {
+        document.getElementById('cfg-customLabels-enabled').checked = true;
+        document.getElementById('customLabels-field').style.display = 'block';
+        document.getElementById('cfg-customLabels').value = cfg.customLabels.join(',');
+      } else {
+        document.getElementById('cfg-customLabels-enabled').checked = false;
+        document.getElementById('customLabels-field').style.display = 'none';
+      }
+
+      // Redline/danger
+      if (cfg.redlineStart !== undefined && cfg.redlineStart !== null) {
+        document.getElementById('cfg-redlineStart-enabled').checked = true;
+        document.getElementById('redlineStart-field').style.display = 'block';
+        document.getElementById('cfg-redlineStart').value = cfg.redlineStart;
+      } else {
+        document.getElementById('cfg-redlineStart-enabled').checked = false;
+        document.getElementById('redlineStart-field').style.display = 'none';
+      }
+
+      if (cfg.dangerStart !== undefined && cfg.dangerStart !== null) {
+        document.getElementById('cfg-dangerStart-enabled').checked = true;
+        document.getElementById('dangerStart-field').style.display = 'block';
+        document.getElementById('cfg-dangerStart').value = cfg.dangerStart;
+      } else {
+        document.getElementById('cfg-dangerStart-enabled').checked = false;
+        document.getElementById('dangerStart-field').style.display = 'none';
+      }
+
+      document.getElementById('cfg-showOdometer').checked = !!cfg.showOdometer;
+      document.getElementById('cfg-showDigitalValue').checked = !!cfg.showDigitalValue;
+
+      // Face style
+      if (cfg.faceStyle === 'dark') {
+        document.getElementById('face-dark').classList.add('active');
+        document.getElementById('face-light').classList.remove('active');
+      } else {
+        document.getElementById('face-light').classList.add('active');
+        document.getElementById('face-dark').classList.remove('active');
+      }
+
+      // Angles
+      document.getElementById('cfg-startAngle').value = cfg.startAngle;
+      document.getElementById('startAngle-val').textContent = cfg.startAngle;
+      document.getElementById('cfg-endAngle').value = cfg.endAngle;
+      document.getElementById('endAngle-val').textContent = cfg.endAngle;
+
+      // Physics
+      document.getElementById('cfg-stiffness').value = cfg.stiffness;
+      document.getElementById('stiffness-val').textContent = cfg.stiffness;
+      document.getElementById('cfg-damping').value = cfg.damping;
+      document.getElementById('damping-val').textContent = cfg.damping;
+
+      // Value slider
+      const valSlider = document.getElementById('cfg-value');
+      valSlider.min = cfg.min;
+      valSlider.max = cfg.max;
+      valSlider.step = cfg.max <= 1 ? 0.01 : 1;
+      valSlider.value = state.value;
+      document.getElementById('value-val').textContent = Math.round(state.value);
+
+      // Zones
+      renderZones();
+
+      // Colors
+      renderColors();
+
+      // Texts
+      renderTexts();
+
+      // Angle indicator
+      drawAngleIndicator();
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // INIT
+    // ═══════════════════════════════════════════════════════════════════════
+
+    updateAllControls();
+    rebuildGauge();
+    updateCodePanel();
+    drawAngleIndicator();
+  </script>
+</body>
+</html>

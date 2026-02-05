@@ -200,6 +200,11 @@ export default class Gauge {
 
     // Draw center cap (on top of needle)
     this._renderer.drawCenterCap(ctx, center, radius);
+
+    // Draw digital value display (per-frame, since value changes)
+    if (this._config.showDigitalValue) {
+      this._renderer.drawDigitalValue(ctx, center, radius, this._targetValue, this._config.units);
+    }
   }
 
   _updateSweep(timestamp) {
@@ -218,6 +223,7 @@ export default class Gauge {
         this._sweepPhase = 'idle';
         // Return to actual target value
         this._physics.setTarget(this._valueToAngle(this._targetValue));
+        this._element.dispatchEvent(new CustomEvent('gauge:sweepcomplete'));
       }
     }
   }
