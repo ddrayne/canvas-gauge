@@ -392,13 +392,12 @@ export default class GaugeRenderer {
     ctx.textBaseline = 'middle';
 
     const majorCount = config.majorTicks;
-    const numberRadius = faceRadius * 0.56;  // Push numbers further out
+    const tickInnerRadius = faceRadius * 0.72;
 
+    // Build labels and measure widest to compute optimal number radius
+    const labels = [];
+    let maxTextWidth = 0;
     for (let i = 0; i < majorCount; i++) {
-      const angle = startAngle + (i / (majorCount - 1)) * totalAngle;
-      const x = center + Math.cos(angle) * numberRadius;
-      const y = center + Math.sin(angle) * numberRadius;
-
       let label;
       if (config.customLabels) {
         label = config.customLabels[i] || '';
@@ -406,6 +405,19 @@ export default class GaugeRenderer {
         const value = config.min + (i / (majorCount - 1)) * (config.max - config.min);
         label = Math.round(value).toString();
       }
+      labels.push(label);
+      const w = ctx.measureText(label).width;
+      if (w > maxTextWidth) maxTextWidth = w;
+    }
+
+    // Position number centers so their outer edge sits a small gap inside the ticks
+    const gap = fontSize * 0.35;
+    const numberRadius = tickInnerRadius - gap - maxTextWidth / 2;
+
+    for (let i = 0; i < majorCount; i++) {
+      const angle = startAngle + (i / (majorCount - 1)) * totalAngle;
+      const x = center + Math.cos(angle) * numberRadius;
+      const y = center + Math.sin(angle) * numberRadius;
 
       // Danger zone coloring
       const value = config.min + (i / (majorCount - 1)) * (config.max - config.min);
@@ -413,7 +425,7 @@ export default class GaugeRenderer {
         (config.dangerStart && value >= config.dangerStart);
       ctx.fillStyle = isDanger ? colors.redline : colors.numbers;
 
-      ctx.fillText(label, x, y);
+      ctx.fillText(labels[i], x, y);
     }
 
     ctx.restore();
