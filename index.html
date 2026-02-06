@@ -445,6 +445,7 @@
       <div class="button-row">
         <button class="btn-primary" id="sweep-btn">🔄 Sweep Test</button>
         <button class="btn-secondary" id="drive-btn">🚗 Random Drive</button>
+        <button class="btn-secondary" id="limiter-btn">💥 Rev Limiter</button>
         <button class="btn-secondary" id="stop-btn">⏹ Stop</button>
       </div>
 
@@ -501,11 +502,13 @@
     // Button references
     const sweepBtn = document.getElementById('sweep-btn');
     const driveBtn = document.getElementById('drive-btn');
+    const limiterBtn = document.getElementById('limiter-btn');
     const stopBtn = document.getElementById('stop-btn');
 
     // Simulation state
     let simulationActive = false;
     let simulationLoop = null;
+    let limiterInterval = null;
 
     // Bind sliders
     for (const [type, control] of Object.entries(sliders)) {
@@ -532,8 +535,35 @@
       startSimulation();
     });
 
+    // Rev limiter button
+    limiterBtn.addEventListener('click', () => {
+      if (limiterInterval) {
+        stopLimiter();
+        return;
+      }
+      stopSimulation();
+      const max = 80;
+      const drop = max * 0.06;
+      gauges.rpm.setValue(max);
+      limiterInterval = setInterval(() => {
+        gauges.rpm.setValue(max - drop + Math.random() * drop);
+        updateSliderDisplay('rpm', max - drop / 2);
+      }, 80);
+      limiterBtn.classList.add('active');
+      setStatus('Rev Limiter', true);
+    });
+
+    function stopLimiter() {
+      if (limiterInterval) {
+        clearInterval(limiterInterval);
+        limiterInterval = null;
+      }
+      limiterBtn.classList.remove('active');
+    }
+
     // Stop button
     stopBtn.addEventListener('click', () => {
+      stopLimiter();
       stopSimulation();
     });
 
