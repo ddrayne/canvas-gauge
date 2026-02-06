@@ -690,6 +690,7 @@ gauge.vibration = <span class="kw">true</span>;   <span class="cmt">// enable ne
             <tr><td>zones</td><td>array</td><td>[]</td><td>Warning/danger zone arcs</td></tr>
             <tr><td>texts</td><td>array</td><td>[]</td><td>Arbitrary text placements on face</td></tr>
             <tr><td>showDigitalValue</td><td>boolean</td><td>false</td><td>Show digital numeric readout</td></tr>
+            <tr><td>labelFontSize</td><td>number</td><td>1</td><td>Label font size multiplier (auto-shrinks for long labels)</td></tr>
           </tbody>
         </table>
 
@@ -703,6 +704,7 @@ gauge.vibration = <span class="kw">true</span>;   <span class="cmt">// enable ne
   <span class="prop">majorTicks</span>: <span class="num">7</span>, <span class="prop">minorTicks</span>: <span class="num">3</span>,
   <span class="prop">faceStyle</span>: <span class="str">'dark'</span>,
   <span class="prop">showDigitalValue</span>: <span class="kw">true</span>,
+  <span class="prop">labelFontSize</span>: <span class="num">1.2</span>,
   <span class="prop">zones</span>: [
     { <span class="prop">start</span>: <span class="num">80</span>, <span class="prop">end</span>: <span class="num">100</span>, <span class="prop">color</span>: <span class="str">'rgba(255,165,0,0.15)'</span> },
     { <span class="prop">start</span>: <span class="num">100</span>, <span class="prop">end</span>: <span class="num">120</span>, <span class="prop">color</span>: <span class="str">'rgba(204,32,32,0.15)'</span> }
@@ -894,6 +896,7 @@ gauge.vibration = <span class="kw">true</span>;   <span class="cmt">// enable ne
       majorTicks: 7, minorTicks: 3,
       faceStyle: 'dark',
       showDigitalValue: true,
+      labelFontSize: 1.2,
       zones: [
         { start: 80, end: 100, color: 'rgba(255, 165, 0, 0.15)' },
         { start: 100, end: 120, color: 'rgba(204, 32, 32, 0.15)' }

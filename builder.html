@@ -530,6 +530,10 @@
             <input type="text" id="cfg-units" value="">
           </div>
           <div class="field">
+            <div class="field-label">Label Font Size <span class="field-value" id="labelFontSize-val">1.0</span></div>
+            <input type="range" id="cfg-labelFontSize" min="0.5" max="3" step="0.1" value="1">
+          </div>
+          <div class="field">
             <label class="checkbox">
               <input type="checkbox" id="cfg-customLabels-enabled">
               Custom Labels
@@ -902,6 +906,12 @@
     // Labels
     bindText('cfg-label', 'label');
     bindText('cfg-units', 'units');
+
+    document.getElementById('cfg-labelFontSize').addEventListener('input', (e) => {
+      const val = parseFloat(e.target.value);
+      document.getElementById('labelFontSize-val').textContent = val.toFixed(1);
+      updateFromUI('labelFontSize', val);
+    });
 
     document.getElementById('cfg-customLabels-enabled').addEventListener('change', (e) => {
       document.getElementById('customLabels-field').style.display = e.target.checked ? 'block' : 'none';
@@ -1342,6 +1352,8 @@
       document.getElementById('cfg-max').value = cfg.max;
       document.getElementById('cfg-label').value = cfg.label || '';
       document.getElementById('cfg-units').value = cfg.units || '';
+      document.getElementById('cfg-labelFontSize').value = cfg.labelFontSize || 1;
+      document.getElementById('labelFontSize-val').textContent = (cfg.labelFontSize || 1).toFixed(1);
       document.getElementById('cfg-majorTicks').value = cfg.majorTicks;
       document.getElementById('cfg-minorTicks').value = cfg.minorTicks;
 

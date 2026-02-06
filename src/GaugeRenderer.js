@@ -449,14 +449,25 @@ export default class GaugeRenderer {
     ctx.save();
 
     const baseFontSize = this.size > 150 ? this.size * 0.065 : this.size * 0.08;
-    const fontSize = baseFontSize * (config.labelFontSize || 1);
-    ctx.font = `bold ${fontSize}px "Arial Narrow", "Helvetica Neue", Arial, sans-serif`;
+    const fontFamily = '"Arial Narrow", "Helvetica Neue", Arial, sans-serif';
+    const maxWidth = radius * 0.8;
+    let fontSize = baseFontSize * (config.labelFontSize || 1);
+
+    // Auto-shrink label to fit within gauge face
+    ctx.font = `bold ${fontSize}px ${fontFamily}`;
+    const measured = ctx.measureText(config.label).width;
+    if (measured > maxWidth) {
+      fontSize *= maxWidth / measured;
+      ctx.font = `bold ${fontSize}px ${fontFamily}`;
+    }
+
     ctx.fillStyle = colors.label;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
 
-    // Position label in lower portion of gauge
-    const labelY = center + radius * 0.28;
+    // Position label in lower portion of gauge, scaled with font size
+    const effectiveScale = fontSize / baseFontSize;
+    const labelY = center + radius * (0.15 + 0.13 * effectiveScale);
     ctx.fillText(config.label, center, labelY);
 
     // Draw units text below label if different from label (e.g., "\u00d71000" below "RPM")
