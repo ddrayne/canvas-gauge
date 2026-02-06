@@ -17,13 +17,24 @@ export default class GaugeRenderer {
     // Resolve colors based on faceStyle and user overrides
     this._resolvedColors = this._buildColors(config);
 
-    // Create offscreen canvas for static layers
-    this.staticCanvas = new OffscreenCanvas(this.scaledSize, this.scaledSize);
+    // Create offscreen canvas for static layers (fall back to regular canvas for Safari <17)
+    this.staticCanvas = this._createOffscreenCanvas(this.scaledSize, this.scaledSize);
     this.staticCtx = this.staticCanvas.getContext('2d');
     this.staticCtx.scale(dpi, dpi);
 
     // Pre-render static layers
     this.renderStaticLayers();
+  }
+
+  _createOffscreenCanvas(width, height) {
+    if (typeof OffscreenCanvas !== 'undefined') {
+      const oc = new OffscreenCanvas(width, height);
+      if (oc.getContext('2d')) return oc;
+    }
+    const canvas = document.createElement('canvas');
+    canvas.width = width;
+    canvas.height = height;
+    return canvas;
   }
 
   // ═══════════════════════════════════════════════════════════════════════
