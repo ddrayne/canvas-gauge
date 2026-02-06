@@ -132,14 +132,21 @@
       cursor: grab;
       font-size: 12px;
       font-family: 'Oswald', sans-serif;
-      color: rgba(255, 255, 255, 0.6);
-      background: rgba(255, 59, 48, 0.3);
-      border: 1px dashed rgba(255, 59, 48, 0.5);
+      color: transparent;
+      background: transparent;
+      border: 1px dashed transparent;
       padding: 2px 6px;
       border-radius: 3px;
       white-space: nowrap;
       transform: translate(-50%, -50%);
       user-select: none;
+      transition: background 0.15s, border-color 0.15s, color 0.15s;
+    }
+
+    .text-overlay .drag-handle:hover {
+      color: rgba(255, 255, 255, 0.8);
+      background: rgba(255, 59, 48, 0.3);
+      border-color: rgba(255, 59, 48, 0.5);
     }
 
     .text-overlay .drag-handle:active { cursor: grabbing; }
@@ -478,7 +485,7 @@
     <div class="preview-panel">
       <div class="preview-container">
         <div id="gauge-preview"></div>
-        <div class="text-overlay" id="text-overlay"></div>
+        <div class="text-overlay" id="text-overlay" style="display: none;"></div>
       </div>
     </div>
 
@@ -637,7 +644,7 @@
       </details>
 
       <!-- 7. Texts -->
-      <details>
+      <details id="texts-details">
         <summary>Texts</summary>
         <div class="control-content">
           <button class="btn" id="add-text">+ Add Text</button>
@@ -1110,6 +1117,10 @@
     // ═══════════════════════════════════════════════════════════════════════
     // TEXTS
     // ═══════════════════════════════════════════════════════════════════════
+
+    document.getElementById('texts-details').addEventListener('toggle', (e) => {
+      document.getElementById('text-overlay').style.display = e.target.open ? '' : 'none';
+    });
 
     document.getElementById('add-text').addEventListener('click', () => {
       if (!state.config.texts) state.config.texts = [];
