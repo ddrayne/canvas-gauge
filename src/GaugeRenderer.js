@@ -448,7 +448,8 @@ export default class GaugeRenderer {
 
     ctx.save();
 
-    const fontSize = this.size > 150 ? this.size * 0.065 : this.size * 0.08;
+    const baseFontSize = this.size > 150 ? this.size * 0.065 : this.size * 0.08;
+    const fontSize = baseFontSize * (config.labelFontSize || 1);
     ctx.font = `bold ${fontSize}px "Arial Narrow", "Helvetica Neue", Arial, sans-serif`;
     ctx.fillStyle = colors.label;
     ctx.textAlign = 'center';

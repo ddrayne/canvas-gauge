@@ -20,6 +20,7 @@ export const defaults = {
   colors: {},
   zones: [],
   showDigitalValue: false,
+  labelFontSize: 1,
   texts: [],
 };
 
