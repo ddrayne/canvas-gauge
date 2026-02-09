@@ -385,6 +385,24 @@
         width: 100%;
       }
     }
+
+    .open-builder-btn {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.12);
+      color: rgba(255,255,255,0.5);
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-size: 0.65rem;
+      font-family: 'Oswald', sans-serif;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .open-builder-btn:hover {
+      background: rgba(255,255,255,0.12);
+      color: rgba(255,255,255,0.85);
+    }
   </style>
 </head>
 <body>
@@ -401,14 +419,32 @@
   <main>
     <div class="gauge-container">
       <div class="cluster">
-        <div class="large-gauge" id="gauge-speed"></div>
-        <div class="large-gauge" id="gauge-rpm"></div>
+        <div style="display:flex;flex-direction:column;align-items:center">
+          <div class="large-gauge" id="gauge-speed"></div>
+          <button class="open-builder-btn" onclick="openInBuilder('speed')">Open in Builder</button>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center">
+          <div class="large-gauge" id="gauge-rpm"></div>
+          <button class="open-builder-btn" onclick="openInBuilder('rpm')">Open in Builder</button>
+        </div>
 
         <div class="small-gauges">
-          <div class="small-gauge" id="gauge-volt"></div>
-          <div class="small-gauge" id="gauge-temp"></div>
-          <div class="small-gauge" id="gauge-oilPressure"></div>
-          <div class="small-gauge" id="gauge-oilLevel"></div>
+          <div style="display:flex;flex-direction:column;align-items:center">
+            <div class="small-gauge" id="gauge-volt"></div>
+            <button class="open-builder-btn" onclick="openInBuilder('volt')">Open in Builder</button>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:center">
+            <div class="small-gauge" id="gauge-temp"></div>
+            <button class="open-builder-btn" onclick="openInBuilder('temp')">Open in Builder</button>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:center">
+            <div class="small-gauge" id="gauge-oilPressure"></div>
+            <button class="open-builder-btn" onclick="openInBuilder('oilPressure')">Open in Builder</button>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:center">
+            <div class="small-gauge" id="gauge-oilLevel"></div>
+            <button class="open-builder-btn" onclick="openInBuilder('oilLevel')">Open in Builder</button>
+          </div>
         </div>
       </div>
     </div>
@@ -488,8 +524,9 @@
     <p style="font-size: 12px; color: var(--text-secondary); letter-spacing: 1px; text-transform: uppercase; text-align: center; margin-top: -16px;">Progress Arc • Ring Indicators • Complications • Digital Display</p>
 
     <div class="gauge-container">
-      <div style="display: flex; justify-content: center; padding: 24px; background: linear-gradient(145deg, #1a1a1a 0%, #0d0d0d 100%); border-radius: 16px; box-shadow: 0 20px 60px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.05);">
+      <div style="display: flex; flex-direction: column; align-items: center; padding: 24px; background: linear-gradient(145deg, #1a1a1a 0%, #0d0d0d 100%); border-radius: 16px; box-shadow: 0 20px 60px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.05);">
         <div id="gauge-modern" style="width: 400px; height: 400px; max-width: 90vw; aspect-ratio: 1;"></div>
+        <button class="open-builder-btn" style="margin-top: 12px;" onclick="openInBuilder('modern')">Open in Builder</button>
       </div>
     </div>
 
@@ -532,7 +569,21 @@
   </footer>
 
   <script type="module">
-    import { Gauge } from './src/index.js';
+    import { Gauge, presets, defaults } from './src/index.js';
+
+    window.openInBuilder = function(config) {
+      const full = typeof config === 'string'
+        ? { ...defaults, ...presets[config] }
+        : { ...defaults, ...config };
+      // Strip keys that match defaults to keep URL compact
+      const minimal = {};
+      for (const key of Object.keys(full)) {
+        if (JSON.stringify(full[key]) !== JSON.stringify(defaults[key])) {
+          minimal[key] = full[key];
+        }
+      }
+      window.open('builder.html#config=' + btoa(JSON.stringify(minimal)), '_blank');
+    };
 
     // Create all gauges
     const gauges = {

@@ -357,6 +357,39 @@
       letter-spacing: 0.5px;
     }
 
+    .json-field {
+      width: 100%;
+      min-height: 60px;
+      padding: 6px 8px;
+      background: var(--bg-dark);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      color: #abb2bf;
+      font-family: 'Courier New', monospace;
+      font-size: 11px;
+      line-height: 1.4;
+      resize: vertical;
+      outline: none;
+    }
+
+    .json-field:focus { border-color: var(--accent); }
+
+    .sub-fields {
+      margin-top: 6px;
+      padding-left: 8px;
+      border-left: 2px solid var(--border);
+    }
+
+    .ring-entry, .complication-entry {
+      background: var(--bg-dark);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 8px;
+      margin-bottom: 8px;
+    }
+
+    .ring-entry .field, .complication-entry .field { margin-bottom: 6px; }
+
     /* Angle indicator canvas */
     #angle-canvas {
       border: 1px solid var(--border);
@@ -503,6 +536,7 @@
             <option value="temp">temp</option>
             <option value="oilPressure">oilPressure</option>
             <option value="oilLevel">oilLevel</option>
+            <option value="modern">modern</option>
           </select>
         </div>
       </details>
@@ -596,13 +630,6 @@
           </div>
 
           <div class="field">
-            <label class="checkbox">
-              <input type="checkbox" id="cfg-showDigitalValue">
-              Show Digital Value
-            </label>
-          </div>
-
-          <div class="field">
             <div class="field-label">Face Style</div>
             <div class="toggle-group">
               <button class="active" data-face="light" id="face-light">Light</button>
@@ -652,7 +679,170 @@
         </div>
       </details>
 
-      <!-- 8. Physics -->
+      <!-- 8. Effects -->
+      <details>
+        <summary>Effects</summary>
+        <div class="control-content">
+          <div class="field">
+            <label class="checkbox">
+              <input type="checkbox" id="cfg-needleGlow">
+              Needle Glow
+            </label>
+          </div>
+          <div class="field" style="margin-top: 8px;">
+            <label class="checkbox">
+              <input type="checkbox" id="cfg-activeTicks-enabled">
+              Active Ticks
+            </label>
+            <div class="sub-fields" id="activeTicks-fields" style="display: none;">
+              <div class="color-row" style="margin-top: 6px;">
+                <span class="color-label">Color</span>
+                <input type="color" id="cfg-activeTicks-color" value="#FFAA00">
+              </div>
+            </div>
+          </div>
+          <div class="field" style="margin-top: 8px;">
+            <label class="checkbox">
+              <input type="checkbox" id="cfg-innerRing-enabled">
+              Inner Ring
+            </label>
+            <div class="sub-fields" id="innerRing-fields" style="display: none;">
+              <div class="field" style="margin-top: 6px;">
+                <div class="field-label">Radius <span class="field-value" id="innerRing-radius-val">0.38</span></div>
+                <input type="range" id="cfg-innerRing-radius" min="0.1" max="0.8" step="0.02" value="0.38">
+              </div>
+              <div class="field">
+                <div class="field-label">Width <span class="field-value" id="innerRing-width-val">2</span></div>
+                <input type="range" id="cfg-innerRing-width" min="1" max="6" step="0.5" value="2">
+              </div>
+              <div class="color-row">
+                <span class="color-label">Color</span>
+                <input type="color" id="cfg-innerRing-color" value="#333333">
+              </div>
+            </div>
+          </div>
+          <div class="field" style="margin-top: 8px;">
+            <label class="checkbox">
+              <input type="checkbox" id="cfg-microTicks-enabled">
+              Micro Ticks
+            </label>
+            <div class="sub-fields" id="microTicks-fields" style="display: none;">
+              <div class="field" style="margin-top: 6px;">
+                <div class="field-label">Count <span class="field-value" id="microTicks-count-val">100</span></div>
+                <input type="range" id="cfg-microTicks-count" min="10" max="500" step="10" value="100">
+              </div>
+              <div class="color-row">
+                <span class="color-label">Color</span>
+                <input type="color" id="cfg-microTicks-color" value="#444444">
+              </div>
+            </div>
+          </div>
+        </div>
+      </details>
+
+      <!-- 9. Digital Display -->
+      <details>
+        <summary>Digital Display</summary>
+        <div class="control-content">
+          <div class="field">
+            <label class="checkbox">
+              <input type="checkbox" id="cfg-digitalDisplay-enabled">
+              Enable Digital Display
+            </label>
+          </div>
+          <div id="digitalDisplay-fields" style="display: none;">
+            <div class="field" style="margin-top: 6px;">
+              <div class="field-label">Y Position <span class="field-value" id="digitalDisplay-y-val">0</span></div>
+              <input type="range" id="cfg-digitalDisplay-y" min="-1" max="1" step="0.05" value="0">
+            </div>
+            <div class="field">
+              <div class="field-label">Font Size <span class="field-value" id="digitalDisplay-fontSize-val">2</span></div>
+              <input type="range" id="cfg-digitalDisplay-fontSize" min="0.5" max="5" step="0.1" value="2">
+            </div>
+            <div class="color-row">
+              <span class="color-label">Color</span>
+              <input type="color" id="cfg-digitalDisplay-color" value="#FFFFFF">
+            </div>
+            <div class="field">
+              <label class="checkbox">
+                <input type="checkbox" id="cfg-digitalDisplay-background">
+                Background
+              </label>
+            </div>
+            <div class="field">
+              <label class="checkbox">
+                <input type="checkbox" id="cfg-digitalDisplay-showUnits" checked>
+                Show Units
+              </label>
+            </div>
+            <div class="color-row">
+              <span class="color-label">Units Color</span>
+              <input type="color" id="cfg-digitalDisplay-unitsColor" value="#999999">
+            </div>
+            <div class="field">
+              <div class="field-label">Units Font Size <span class="field-value" id="digitalDisplay-unitsFontSize-val">0.35</span></div>
+              <input type="range" id="cfg-digitalDisplay-unitsFontSize" min="0.1" max="1" step="0.05" value="0.35">
+            </div>
+          </div>
+        </div>
+      </details>
+
+      <!-- 10. Progress Arc -->
+      <details>
+        <summary>Progress Arc</summary>
+        <div class="control-content">
+          <div class="field">
+            <label class="checkbox">
+              <input type="checkbox" id="cfg-progressArc-enabled">
+              Enable Progress Arc
+            </label>
+          </div>
+          <div id="progressArc-fields" style="display: none;">
+            <div class="field" style="margin-top: 6px;">
+              <div class="field-label">Width <span class="field-value" id="progressArc-width-val">0.04</span></div>
+              <input type="range" id="cfg-progressArc-width" min="0.01" max="0.1" step="0.005" value="0.04">
+            </div>
+            <div class="field">
+              <div class="field-label">Offset <span class="field-value" id="progressArc-offset-val">0.85</span></div>
+              <input type="range" id="cfg-progressArc-offset" min="0.5" max="1.0" step="0.01" value="0.85">
+            </div>
+            <div class="color-row">
+              <span class="color-label">Background</span>
+              <input type="color" id="cfg-progressArc-background" value="#333333">
+            </div>
+            <div class="field">
+              <label class="checkbox">
+                <input type="checkbox" id="cfg-progressArc-glow">
+                Glow
+              </label>
+            </div>
+            <div class="field">
+              <div class="field-label">Gradient (JSON)</div>
+              <textarea class="json-field" id="cfg-progressArc-gradient" placeholder='[{"at": 0, "color": "#00ff00"}, {"at": 1, "color": "#ff0000"}]'></textarea>
+            </div>
+          </div>
+        </div>
+      </details>
+
+      <!-- 11. Rings -->
+      <details>
+        <summary>Rings</summary>
+        <div class="control-content">
+          <button class="btn" id="add-ring">+ Add Ring</button>
+          <div id="rings-container" style="margin-top: 8px;"></div>
+        </div>
+      </details>
+
+      <!-- 12. Complications -->
+      <details>
+        <summary>Complications</summary>
+        <div class="control-content">
+          <button class="btn" id="add-complication">+ Add Complication</button>
+          <div id="complications-container" style="margin-top: 8px;"></div>
+        </div>
+      </details>
+
+      <!-- 13. Physics -->
       <details>
         <summary>Physics</summary>
         <div class="control-content">
@@ -796,7 +986,13 @@
         }
         if (key === 'texts') {
           if (val && val.length > 0) {
-            const inner = val.map(t => `    { text: '${t.text}', x: ${t.x}, y: ${t.y} }`).join(',\n');
+            const inner = val.map(t => {
+              const parts = [`text: '${t.text}'`, `x: ${t.x}`, `y: ${t.y}`];
+              if (t.fontSize) parts.push(`fontSize: ${t.fontSize}`);
+              if (t.color) parts.push(`color: '${t.color}'`);
+              if (t.font) parts.push(`font: '${t.font}'`);
+              return `    { ${parts.join(', ')} }`;
+            }).join(',\n');
             lines.push(`  texts: [\n${inner}\n  ]`);
           }
           continue;
@@ -804,6 +1000,16 @@
         if (key === 'customLabels') {
           if (val) {
             lines.push(`  customLabels: [${val.map(v => `'${v}'`).join(', ')}]`);
+          }
+          continue;
+        }
+
+        // Complex objects/arrays — use generic serializer
+        const complexKeys = ['digitalDisplay', 'innerRing', 'microTicks', 'activeTicks',
+                             'progressArc', 'rings', 'complications', 'onDraw'];
+        if (complexKeys.includes(key)) {
+          if (val && (Array.isArray(val) ? val.length > 0 : typeof val === 'object' && Object.keys(val).length > 0)) {
+            lines.push(`  ${key}: ${formatAsJS(val, 1)}`);
           }
           continue;
         }
@@ -839,22 +1045,29 @@
     function applyFromCode(text) {
       try {
         // Extract config object from: new Gauge(..., { ... })
-        const configMatch = text.match(/new\s+Gauge\s*\([^,]*,\s*(\{[\s\S]*?\})\s*\)/);
-        if (!configMatch) throw new Error('Could not find Gauge constructor');
+        // Use brace-counting to find the full config object (handles nested braces)
+        const ctorMatch = text.match(/new\s+Gauge\s*\([^,]*,\s*/);
+        if (!ctorMatch) throw new Error('Could not find Gauge constructor');
 
-        let configStr = configMatch[1];
-        // Normalize: add quotes to keys, swap single→double, strip trailing commas
-        configStr = configStr
-          .replace(/(\w+)\s*:/g, '"$1":')
-          .replace(/'/g, '"')
-          .replace(/,\s*([\]}])/g, '$1')
-          // Handle unquoted true/false
-          .replace(/"(true|false)"/g, '$1');
+        const startIdx = ctorMatch.index + ctorMatch[0].length;
+        let depth = 0;
+        let endIdx = startIdx;
+        for (let i = startIdx; i < text.length; i++) {
+          if (text[i] === '{' || text[i] === '[') depth++;
+          if (text[i] === '}' || text[i] === ']') depth--;
+          if (depth === 0 && text[i] === '}') {
+            endIdx = i + 1;
+            break;
+          }
+        }
+        const configStr = text.slice(startIdx, endIdx);
 
-        const parsed = JSON.parse(configStr);
+        // Use Function constructor to evaluate the JS object literal
+        // Safe: this is user-authored config in a builder tool, not untrusted input
+        const parsed = new Function('return (' + configStr + ')')();
 
         // Extract setValue
-        const valueMatch = text.match(/setValue\(\s*(\d+(?:\.\d+)?)/);
+        const valueMatch = text.match(/setValue\(\s*(-?\d+(?:\.\d+)?)/);
         const value = valueMatch ? parseFloat(valueMatch[1]) : 0;
 
         state.config = { ...defaults, ...parsed };
@@ -942,8 +1155,6 @@
     bindCheckboxNumber('cfg-dangerStart-enabled', 'cfg-dangerStart', 'dangerStart', 'dangerStart-field');
 
     bindCheckbox('cfg-showOdometer', 'showOdometer');
-    bindCheckbox('cfg-showDigitalValue', 'showDigitalValue');
-
     // Face style toggle
     document.getElementById('face-light').addEventListener('click', () => {
       document.getElementById('face-light').classList.add('active');
@@ -1146,6 +1357,13 @@
             <span class="small-label">Y</span>
             <input type="number" value="${t.y}" step="0.05" min="-1" max="1" data-text="${i}" data-field="y" style="width:55px">
             <button class="btn danger" data-text-remove="${i}">&times;</button>
+          </div>
+          <div class="text-row" style="margin-top: 4px;">
+            <span class="small-label">Size</span>
+            <input type="number" value="${t.fontSize || ''}" step="0.1" min="0.1" data-text="${i}" data-field="fontSize" style="width:55px" placeholder="auto">
+            <span class="small-label">Font</span>
+            <input type="text" value="${t.font || ''}" data-text="${i}" data-field="font" style="width:70px" placeholder="auto">
+            <input type="color" value="${t.color || '#ffffff'}" data-text="${i}" data-field="color" title="Color">
           </div>`;
         container.appendChild(entry);
       });
@@ -1154,8 +1372,21 @@
         input.addEventListener('input', (e) => {
           const idx = parseInt(e.target.dataset.text);
           const field = e.target.dataset.field;
-          if (field === 'text') {
-            state.config.texts[idx].text = e.target.value;
+          if (field === 'text' || field === 'font') {
+            if (e.target.value) {
+              state.config.texts[idx][field] = e.target.value;
+            } else {
+              delete state.config.texts[idx][field];
+            }
+          } else if (field === 'color') {
+            state.config.texts[idx].color = e.target.value;
+          } else if (field === 'fontSize') {
+            const v = parseFloat(e.target.value);
+            if (v > 0) {
+              state.config.texts[idx].fontSize = v;
+            } else {
+              delete state.config.texts[idx].fontSize;
+            }
           } else {
             state.config.texts[idx][field] = parseFloat(e.target.value) || 0;
           }
@@ -1232,6 +1463,554 @@
             renderTexts();
             updateCodePanel();
           }
+        });
+      });
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // EFFECTS
+    // ═══════════════════════════════════════════════════════════════════════
+
+    document.getElementById('cfg-needleGlow').addEventListener('change', (e) => {
+      updateFromUI('needleGlow', e.target.checked);
+    });
+
+    // Active Ticks
+    document.getElementById('cfg-activeTicks-enabled').addEventListener('change', (e) => {
+      document.getElementById('activeTicks-fields').style.display = e.target.checked ? 'block' : 'none';
+      if (e.target.checked) {
+        state.config.activeTicks = { color: document.getElementById('cfg-activeTicks-color').value };
+      } else {
+        state.config.activeTicks = null;
+      }
+      rebuildGauge();
+      updateCodePanel();
+    });
+
+    document.getElementById('cfg-activeTicks-color').addEventListener('input', (e) => {
+      if (state.config.activeTicks) {
+        state.config.activeTicks.color = e.target.value;
+        rebuildGauge();
+        updateCodePanel();
+      }
+    });
+
+    // Inner Ring
+    document.getElementById('cfg-innerRing-enabled').addEventListener('change', (e) => {
+      document.getElementById('innerRing-fields').style.display = e.target.checked ? 'block' : 'none';
+      if (e.target.checked) {
+        state.config.innerRing = {
+          radius: parseFloat(document.getElementById('cfg-innerRing-radius').value),
+          width: parseFloat(document.getElementById('cfg-innerRing-width').value),
+          color: document.getElementById('cfg-innerRing-color').value
+        };
+      } else {
+        state.config.innerRing = null;
+      }
+      rebuildGauge();
+      updateCodePanel();
+    });
+
+    ['radius', 'width'].forEach(field => {
+      document.getElementById(`cfg-innerRing-${field}`).addEventListener('input', (e) => {
+        const val = parseFloat(e.target.value);
+        document.getElementById(`innerRing-${field}-val`).textContent = val;
+        if (state.config.innerRing) {
+          state.config.innerRing[field] = val;
+          rebuildGauge();
+          updateCodePanel();
+        }
+      });
+    });
+
+    document.getElementById('cfg-innerRing-color').addEventListener('input', (e) => {
+      if (state.config.innerRing) {
+        state.config.innerRing.color = e.target.value;
+        rebuildGauge();
+        updateCodePanel();
+      }
+    });
+
+    // Micro Ticks
+    document.getElementById('cfg-microTicks-enabled').addEventListener('change', (e) => {
+      document.getElementById('microTicks-fields').style.display = e.target.checked ? 'block' : 'none';
+      if (e.target.checked) {
+        state.config.microTicks = {
+          count: parseInt(document.getElementById('cfg-microTicks-count').value),
+          color: document.getElementById('cfg-microTicks-color').value
+        };
+      } else {
+        state.config.microTicks = null;
+      }
+      rebuildGauge();
+      updateCodePanel();
+    });
+
+    document.getElementById('cfg-microTicks-count').addEventListener('input', (e) => {
+      const val = parseInt(e.target.value);
+      document.getElementById('microTicks-count-val').textContent = val;
+      if (state.config.microTicks) {
+        state.config.microTicks.count = val;
+        rebuildGauge();
+        updateCodePanel();
+      }
+    });
+
+    document.getElementById('cfg-microTicks-color').addEventListener('input', (e) => {
+      if (state.config.microTicks) {
+        state.config.microTicks.color = e.target.value;
+        rebuildGauge();
+        updateCodePanel();
+      }
+    });
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // DIGITAL DISPLAY
+    // ═══════════════════════════════════════════════════════════════════════
+
+    document.getElementById('cfg-digitalDisplay-enabled').addEventListener('change', (e) => {
+      document.getElementById('digitalDisplay-fields').style.display = e.target.checked ? 'block' : 'none';
+      if (e.target.checked) {
+        state.config.digitalDisplay = {
+          show: true,
+          y: parseFloat(document.getElementById('cfg-digitalDisplay-y').value),
+          fontSize: parseFloat(document.getElementById('cfg-digitalDisplay-fontSize').value),
+          color: document.getElementById('cfg-digitalDisplay-color').value,
+          background: document.getElementById('cfg-digitalDisplay-background').checked,
+          showUnits: document.getElementById('cfg-digitalDisplay-showUnits').checked,
+          unitsColor: document.getElementById('cfg-digitalDisplay-unitsColor').value,
+          unitsFontSize: parseFloat(document.getElementById('cfg-digitalDisplay-unitsFontSize').value)
+        };
+        state.config.showDigitalValue = true;
+      } else {
+        state.config.digitalDisplay = null;
+        state.config.showDigitalValue = false;
+      }
+      rebuildGauge();
+      updateCodePanel();
+    });
+
+    function updateDigitalDisplayField(field, val) {
+      if (!state.config.digitalDisplay) return;
+      state.config.digitalDisplay[field] = val;
+      rebuildGauge();
+      updateCodePanel();
+    }
+
+    document.getElementById('cfg-digitalDisplay-y').addEventListener('input', (e) => {
+      const val = parseFloat(e.target.value);
+      document.getElementById('digitalDisplay-y-val').textContent = val;
+      updateDigitalDisplayField('y', val);
+    });
+
+    document.getElementById('cfg-digitalDisplay-fontSize').addEventListener('input', (e) => {
+      const val = parseFloat(e.target.value);
+      document.getElementById('digitalDisplay-fontSize-val').textContent = val;
+      updateDigitalDisplayField('fontSize', val);
+    });
+
+    document.getElementById('cfg-digitalDisplay-color').addEventListener('input', (e) => {
+      updateDigitalDisplayField('color', e.target.value);
+    });
+
+    document.getElementById('cfg-digitalDisplay-background').addEventListener('change', (e) => {
+      updateDigitalDisplayField('background', e.target.checked);
+    });
+
+    document.getElementById('cfg-digitalDisplay-showUnits').addEventListener('change', (e) => {
+      updateDigitalDisplayField('showUnits', e.target.checked);
+    });
+
+    document.getElementById('cfg-digitalDisplay-unitsColor').addEventListener('input', (e) => {
+      updateDigitalDisplayField('unitsColor', e.target.value);
+    });
+
+    document.getElementById('cfg-digitalDisplay-unitsFontSize').addEventListener('input', (e) => {
+      const val = parseFloat(e.target.value);
+      document.getElementById('digitalDisplay-unitsFontSize-val').textContent = val;
+      updateDigitalDisplayField('unitsFontSize', val);
+    });
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // PROGRESS ARC
+    // ═══════════════════════════════════════════════════════════════════════
+
+    document.getElementById('cfg-progressArc-enabled').addEventListener('change', (e) => {
+      document.getElementById('progressArc-fields').style.display = e.target.checked ? 'block' : 'none';
+      if (e.target.checked) {
+        state.config.progressArc = {
+          width: parseFloat(document.getElementById('cfg-progressArc-width').value),
+          offset: parseFloat(document.getElementById('cfg-progressArc-offset').value),
+          background: document.getElementById('cfg-progressArc-background').value,
+          glow: document.getElementById('cfg-progressArc-glow').checked
+        };
+        const gradVal = document.getElementById('cfg-progressArc-gradient').value.trim();
+        if (gradVal) {
+          try { state.config.progressArc.gradient = JSON.parse(gradVal); } catch(e) {}
+        }
+      } else {
+        state.config.progressArc = null;
+      }
+      rebuildGauge();
+      updateCodePanel();
+    });
+
+    function updateProgressArcField(field, val) {
+      if (!state.config.progressArc) return;
+      state.config.progressArc[field] = val;
+      rebuildGauge();
+      updateCodePanel();
+    }
+
+    document.getElementById('cfg-progressArc-width').addEventListener('input', (e) => {
+      const val = parseFloat(e.target.value);
+      document.getElementById('progressArc-width-val').textContent = val;
+      updateProgressArcField('width', val);
+    });
+
+    document.getElementById('cfg-progressArc-offset').addEventListener('input', (e) => {
+      const val = parseFloat(e.target.value);
+      document.getElementById('progressArc-offset-val').textContent = val;
+      updateProgressArcField('offset', val);
+    });
+
+    document.getElementById('cfg-progressArc-background').addEventListener('input', (e) => {
+      updateProgressArcField('background', e.target.value);
+    });
+
+    document.getElementById('cfg-progressArc-glow').addEventListener('change', (e) => {
+      updateProgressArcField('glow', e.target.checked);
+    });
+
+    document.getElementById('cfg-progressArc-gradient').addEventListener('change', (e) => {
+      if (!state.config.progressArc) return;
+      const val = e.target.value.trim();
+      if (val) {
+        try {
+          state.config.progressArc.gradient = JSON.parse(val);
+          rebuildGauge();
+          updateCodePanel();
+        } catch(err) {
+          // Invalid JSON, ignore
+        }
+      } else {
+        delete state.config.progressArc.gradient;
+        rebuildGauge();
+        updateCodePanel();
+      }
+    });
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // RINGS
+    // ═══════════════════════════════════════════════════════════════════════
+
+    document.getElementById('add-ring').addEventListener('click', () => {
+      if (!state.config.rings) state.config.rings = [];
+      state.config.rings.push({
+        min: 0, max: 100, width: 0.04, offset: 1.08,
+        startAngle: -75, endAngle: 75, segments: 20,
+        background: 'rgba(255,255,255,0.04)',
+        gradient: [
+          { at: 0, color: '#00ff00' },
+          { at: 1, color: '#ff0000' }
+        ]
+      });
+      renderRings();
+      rebuildGauge();
+      updateCodePanel();
+    });
+
+    function renderRings() {
+      const container = document.getElementById('rings-container');
+      container.innerHTML = '';
+      const rings = state.config.rings || [];
+
+      rings.forEach((ring, i) => {
+        const entry = document.createElement('div');
+        entry.className = 'ring-entry';
+        entry.innerHTML = `
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+            <span class="small-label" style="font-size: 11px;">Ring ${i + 1}</span>
+            <button class="btn danger" data-ring-remove="${i}">&times;</button>
+          </div>
+          <div class="inline-row" style="margin-bottom: 6px;">
+            <div class="field">
+              <div class="field-label">Min</div>
+              <input type="number" value="${ring.min}" data-ring="${i}" data-field="min">
+            </div>
+            <div class="field">
+              <div class="field-label">Max</div>
+              <input type="number" value="${ring.max}" data-ring="${i}" data-field="max">
+            </div>
+          </div>
+          <div class="inline-row" style="margin-bottom: 6px;">
+            <div class="field">
+              <div class="field-label">Width</div>
+              <input type="number" value="${ring.width}" step="0.01" data-ring="${i}" data-field="width">
+            </div>
+            <div class="field">
+              <div class="field-label">Offset</div>
+              <input type="number" value="${ring.offset}" step="0.01" data-ring="${i}" data-field="offset">
+            </div>
+          </div>
+          <div class="inline-row" style="margin-bottom: 6px;">
+            <div class="field">
+              <div class="field-label">Start Angle</div>
+              <input type="number" value="${ring.startAngle}" data-ring="${i}" data-field="startAngle">
+            </div>
+            <div class="field">
+              <div class="field-label">End Angle</div>
+              <input type="number" value="${ring.endAngle}" data-ring="${i}" data-field="endAngle">
+            </div>
+          </div>
+          <div class="inline-row" style="margin-bottom: 6px;">
+            <div class="field">
+              <div class="field-label">Segments</div>
+              <input type="number" value="${ring.segments || ''}" data-ring="${i}" data-field="segments">
+            </div>
+            <div class="field">
+              <div class="color-row">
+                <span class="color-label">Background</span>
+                <input type="color" value="${rgbaToHex(ring.background || '#222222')}" data-ring="${i}" data-field="background">
+              </div>
+            </div>
+          </div>
+          <div class="field">
+            <div class="field-label">Gradient (JSON)</div>
+            <textarea class="json-field" data-ring="${i}" data-field="gradient">${ring.gradient ? JSON.stringify(ring.gradient, null, 2) : ''}</textarea>
+          </div>
+          <div class="field">
+            <div class="field-label">Flash (JSON)</div>
+            <textarea class="json-field" data-ring="${i}" data-field="flash">${ring.flash ? JSON.stringify(ring.flash, null, 2) : ''}</textarea>
+          </div>`;
+        container.appendChild(entry);
+      });
+
+      // Bind ring number/color inputs
+      container.querySelectorAll('input[data-ring]').forEach(input => {
+        input.addEventListener('change', (e) => {
+          const idx = parseInt(e.target.dataset.ring);
+          const field = e.target.dataset.field;
+          if (field === 'background') {
+            state.config.rings[idx].background = hexToRgba(e.target.value, 0.04);
+          } else {
+            const val = parseFloat(e.target.value);
+            state.config.rings[idx][field] = isNaN(val) ? e.target.value : val;
+          }
+          rebuildGauge();
+          updateCodePanel();
+        });
+      });
+
+      // Bind ring JSON textareas
+      container.querySelectorAll('textarea[data-ring]').forEach(ta => {
+        ta.addEventListener('change', (e) => {
+          const idx = parseInt(e.target.dataset.ring);
+          const field = e.target.dataset.field;
+          const val = e.target.value.trim();
+          if (val) {
+            try {
+              state.config.rings[idx][field] = JSON.parse(val);
+              rebuildGauge();
+              updateCodePanel();
+            } catch(err) { /* invalid JSON */ }
+          } else {
+            delete state.config.rings[idx][field];
+            rebuildGauge();
+            updateCodePanel();
+          }
+        });
+      });
+
+      // Bind remove buttons
+      container.querySelectorAll('[data-ring-remove]').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const idx = parseInt(e.target.dataset.ringRemove);
+          state.config.rings.splice(idx, 1);
+          renderRings();
+          rebuildGauge();
+          updateCodePanel();
+        });
+      });
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // COMPLICATIONS
+    // ═══════════════════════════════════════════════════════════════════════
+
+    document.getElementById('add-complication').addEventListener('click', () => {
+      if (!state.config.complications) state.config.complications = [];
+      state.config.complications.push({
+        type: 'arc', x: 0, y: 0, radius: 0.15,
+        min: 0, max: 1,
+        startAngle: 216, endAngle: 144,
+        arcOffset: 0.82, arcWidth: 0.012,
+        tickMarks: 4, marker: true, markerColor: '#FFFFFF',
+        labelSide: 'inside', labelFontSize: 0.04
+      });
+      renderComplications();
+      rebuildGauge();
+      updateCodePanel();
+    });
+
+    function renderComplications() {
+      const container = document.getElementById('complications-container');
+      container.innerHTML = '';
+      const complications = state.config.complications || [];
+
+      complications.forEach((comp, i) => {
+        const entry = document.createElement('div');
+        entry.className = 'complication-entry';
+        entry.innerHTML = `
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+            <span class="small-label" style="font-size: 11px;">Complication ${i + 1}</span>
+            <button class="btn danger" data-comp-remove="${i}">&times;</button>
+          </div>
+          <div class="field">
+            <div class="field-label">Type</div>
+            <select data-comp="${i}" data-field="type">
+              <option value="arc" ${comp.type === 'arc' ? 'selected' : ''}>Arc</option>
+            </select>
+          </div>
+          <div class="inline-row" style="margin-bottom: 6px;">
+            <div class="field">
+              <div class="field-label">X</div>
+              <input type="number" value="${comp.x}" step="0.05" data-comp="${i}" data-field="x">
+            </div>
+            <div class="field">
+              <div class="field-label">Y</div>
+              <input type="number" value="${comp.y}" step="0.05" data-comp="${i}" data-field="y">
+            </div>
+            <div class="field">
+              <div class="field-label">Radius</div>
+              <input type="number" value="${comp.radius}" step="0.01" data-comp="${i}" data-field="radius">
+            </div>
+          </div>
+          <div class="inline-row" style="margin-bottom: 6px;">
+            <div class="field">
+              <div class="field-label">Min</div>
+              <input type="number" value="${comp.min}" data-comp="${i}" data-field="min">
+            </div>
+            <div class="field">
+              <div class="field-label">Max</div>
+              <input type="number" value="${comp.max}" data-comp="${i}" data-field="max">
+            </div>
+          </div>
+          <div class="inline-row" style="margin-bottom: 6px;">
+            <div class="field">
+              <div class="field-label">Start Angle</div>
+              <input type="number" value="${comp.startAngle}" data-comp="${i}" data-field="startAngle">
+            </div>
+            <div class="field">
+              <div class="field-label">End Angle</div>
+              <input type="number" value="${comp.endAngle}" data-comp="${i}" data-field="endAngle">
+            </div>
+          </div>
+          <div class="inline-row" style="margin-bottom: 6px;">
+            <div class="field">
+              <div class="field-label">Arc Offset</div>
+              <input type="number" value="${comp.arcOffset}" step="0.01" data-comp="${i}" data-field="arcOffset">
+            </div>
+            <div class="field">
+              <div class="field-label">Arc Width</div>
+              <input type="number" value="${comp.arcWidth}" step="0.002" data-comp="${i}" data-field="arcWidth">
+            </div>
+          </div>
+          <div class="inline-row" style="margin-bottom: 6px;">
+            <div class="field">
+              <div class="field-label">Tick Marks</div>
+              <input type="number" value="${comp.tickMarks || 0}" data-comp="${i}" data-field="tickMarks">
+            </div>
+            <div class="field">
+              <div class="field-label">Label Font Size</div>
+              <input type="number" value="${comp.labelFontSize || 0.04}" step="0.01" data-comp="${i}" data-field="labelFontSize">
+            </div>
+          </div>
+          <div class="inline-row" style="margin-bottom: 6px;">
+            <div class="field">
+              <label class="checkbox">
+                <input type="checkbox" ${comp.marker ? 'checked' : ''} data-comp="${i}" data-field="marker">
+                Marker
+              </label>
+            </div>
+            <div class="field">
+              <div class="color-row">
+                <span class="color-label">Marker</span>
+                <input type="color" value="${comp.markerColor || '#FFFFFF'}" data-comp="${i}" data-field="markerColor">
+              </div>
+            </div>
+          </div>
+          <div class="field">
+            <div class="field-label">Label Side</div>
+            <select data-comp="${i}" data-field="labelSide">
+              <option value="inside" ${comp.labelSide === 'inside' ? 'selected' : ''}>Inside</option>
+              <option value="outside" ${comp.labelSide === 'outside' ? 'selected' : ''}>Outside</option>
+            </select>
+          </div>
+          <div class="field">
+            <div class="field-label">Zones (JSON)</div>
+            <textarea class="json-field" data-comp="${i}" data-field="zones">${comp.zones ? JSON.stringify(comp.zones, null, 2) : ''}</textarea>
+          </div>
+          <div class="field">
+            <div class="field-label">Fill (JSON)</div>
+            <textarea class="json-field" data-comp="${i}" data-field="fill">${comp.fill ? JSON.stringify(comp.fill, null, 2) : ''}</textarea>
+          </div>
+          <div class="field">
+            <div class="field-label">Labels (JSON)</div>
+            <textarea class="json-field" data-comp="${i}" data-field="labels">${comp.labels ? JSON.stringify(comp.labels, null, 2) : ''}</textarea>
+          </div>`;
+        container.appendChild(entry);
+      });
+
+      // Bind inputs (number, select, color, checkbox)
+      container.querySelectorAll('input[data-comp], select[data-comp]').forEach(input => {
+        const event = input.type === 'checkbox' ? 'change' : (input.type === 'color' ? 'input' : 'change');
+        input.addEventListener(event, (e) => {
+          const idx = parseInt(e.target.dataset.comp);
+          const field = e.target.dataset.field;
+          if (e.target.type === 'checkbox') {
+            state.config.complications[idx][field] = e.target.checked;
+          } else if (e.target.tagName === 'SELECT') {
+            state.config.complications[idx][field] = e.target.value;
+          } else if (e.target.type === 'color') {
+            state.config.complications[idx][field] = e.target.value;
+          } else {
+            const val = parseFloat(e.target.value);
+            state.config.complications[idx][field] = isNaN(val) ? e.target.value : val;
+          }
+          rebuildGauge();
+          updateCodePanel();
+        });
+      });
+
+      // Bind JSON textareas
+      container.querySelectorAll('textarea[data-comp]').forEach(ta => {
+        ta.addEventListener('change', (e) => {
+          const idx = parseInt(e.target.dataset.comp);
+          const field = e.target.dataset.field;
+          const val = e.target.value.trim();
+          if (val) {
+            try {
+              state.config.complications[idx][field] = JSON.parse(val);
+              rebuildGauge();
+              updateCodePanel();
+            } catch(err) { /* invalid JSON */ }
+          } else {
+            delete state.config.complications[idx][field];
+            rebuildGauge();
+            updateCodePanel();
+          }
+        });
+      });
+
+      // Bind remove buttons
+      container.querySelectorAll('[data-comp-remove]').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const idx = parseInt(e.target.dataset.compRemove);
+          state.config.complications.splice(idx, 1);
+          renderComplications();
+          rebuildGauge();
+          updateCodePanel();
         });
       });
     }
@@ -1336,6 +2115,29 @@
       });
     }
 
+    function formatAsJS(val, indent = 2) {
+      const pad = '  '.repeat(indent);
+      const padInner = '  '.repeat(indent + 1);
+      if (val === null || val === undefined) return 'null';
+      if (typeof val === 'string') return `'${val}'`;
+      if (typeof val === 'number' || typeof val === 'boolean') return String(val);
+      if (typeof val === 'function') return 'null';
+      if (Array.isArray(val)) {
+        if (val.length === 0) return '[]';
+        const items = val.map(v => padInner + formatAsJS(v, indent + 1));
+        return `[\n${items.join(',\n')}\n${pad}]`;
+      }
+      if (typeof val === 'object') {
+        const keys = Object.keys(val);
+        if (keys.length === 0) return '{}';
+        const entries = keys
+          .filter(k => val[k] !== undefined && val[k] !== null)
+          .map(k => `${padInner}${k}: ${formatAsJS(val[k], indent + 1)}`);
+        return `{\n${entries.join(',\n')}\n${pad}}`;
+      }
+      return String(val);
+    }
+
     function rgbaToHex(rgba) {
       const match = rgba.match(/(\d+)\s*,\s*(\d+)\s*,\s*(\d+)/);
       if (!match) return '#ff9900';
@@ -1398,7 +2200,6 @@
       }
 
       document.getElementById('cfg-showOdometer').checked = !!cfg.showOdometer;
-      document.getElementById('cfg-showDigitalValue').checked = !!cfg.showDigitalValue;
 
       // Face style
       if (cfg.faceStyle === 'dark') {
@@ -1438,6 +2239,80 @@
       // Texts
       renderTexts();
 
+      // Effects
+      document.getElementById('cfg-needleGlow').checked = !!cfg.needleGlow;
+
+      if (cfg.activeTicks) {
+        document.getElementById('cfg-activeTicks-enabled').checked = true;
+        document.getElementById('activeTicks-fields').style.display = 'block';
+        document.getElementById('cfg-activeTicks-color').value = cfg.activeTicks.color || '#FFAA00';
+      } else {
+        document.getElementById('cfg-activeTicks-enabled').checked = false;
+        document.getElementById('activeTicks-fields').style.display = 'none';
+      }
+
+      if (cfg.innerRing) {
+        document.getElementById('cfg-innerRing-enabled').checked = true;
+        document.getElementById('innerRing-fields').style.display = 'block';
+        document.getElementById('cfg-innerRing-radius').value = cfg.innerRing.radius || 0.38;
+        document.getElementById('innerRing-radius-val').textContent = cfg.innerRing.radius || 0.38;
+        document.getElementById('cfg-innerRing-width').value = cfg.innerRing.width || 2;
+        document.getElementById('innerRing-width-val').textContent = cfg.innerRing.width || 2;
+        document.getElementById('cfg-innerRing-color').value = cfg.innerRing.color || '#333333';
+      } else {
+        document.getElementById('cfg-innerRing-enabled').checked = false;
+        document.getElementById('innerRing-fields').style.display = 'none';
+      }
+
+      if (cfg.microTicks) {
+        document.getElementById('cfg-microTicks-enabled').checked = true;
+        document.getElementById('microTicks-fields').style.display = 'block';
+        document.getElementById('cfg-microTicks-count').value = cfg.microTicks.count || 100;
+        document.getElementById('microTicks-count-val').textContent = cfg.microTicks.count || 100;
+        document.getElementById('cfg-microTicks-color').value = cfg.microTicks.color || '#444444';
+      } else {
+        document.getElementById('cfg-microTicks-enabled').checked = false;
+        document.getElementById('microTicks-fields').style.display = 'none';
+      }
+
+      // Digital Display (handles both legacy showDigitalValue and modern digitalDisplay)
+      const dd = cfg.digitalDisplay;
+      const ddEnabled = (dd && dd.show) || cfg.showDigitalValue;
+      document.getElementById('cfg-digitalDisplay-enabled').checked = !!ddEnabled;
+      document.getElementById('digitalDisplay-fields').style.display = ddEnabled ? 'block' : 'none';
+      if (dd) {
+        document.getElementById('cfg-digitalDisplay-y').value = dd.y ?? 0;
+        document.getElementById('digitalDisplay-y-val').textContent = dd.y ?? 0;
+        document.getElementById('cfg-digitalDisplay-fontSize').value = dd.fontSize ?? 2;
+        document.getElementById('digitalDisplay-fontSize-val').textContent = dd.fontSize ?? 2;
+        document.getElementById('cfg-digitalDisplay-color').value = dd.color || '#FFFFFF';
+        document.getElementById('cfg-digitalDisplay-background').checked = !!dd.background;
+        document.getElementById('cfg-digitalDisplay-showUnits').checked = dd.showUnits !== false;
+        document.getElementById('cfg-digitalDisplay-unitsColor').value = dd.unitsColor || '#999999';
+        document.getElementById('cfg-digitalDisplay-unitsFontSize').value = dd.unitsFontSize ?? 0.35;
+        document.getElementById('digitalDisplay-unitsFontSize-val').textContent = dd.unitsFontSize ?? 0.35;
+      }
+
+      // Progress Arc
+      const pa = cfg.progressArc;
+      document.getElementById('cfg-progressArc-enabled').checked = !!pa;
+      document.getElementById('progressArc-fields').style.display = pa ? 'block' : 'none';
+      if (pa) {
+        document.getElementById('cfg-progressArc-width').value = pa.width ?? 0.04;
+        document.getElementById('progressArc-width-val').textContent = pa.width ?? 0.04;
+        document.getElementById('cfg-progressArc-offset').value = pa.offset ?? 0.85;
+        document.getElementById('progressArc-offset-val').textContent = pa.offset ?? 0.85;
+        document.getElementById('cfg-progressArc-background').value = pa.background || '#333333';
+        document.getElementById('cfg-progressArc-glow').checked = !!pa.glow;
+        document.getElementById('cfg-progressArc-gradient').value = pa.gradient ? JSON.stringify(pa.gradient, null, 2) : '';
+      }
+
+      // Rings
+      renderRings();
+
+      // Complications
+      renderComplications();
+
       // Angle indicator
       drawAngleIndicator();
     }
@@ -1445,6 +2320,21 @@
     // ═══════════════════════════════════════════════════════════════════════
     // INIT
     // ═══════════════════════════════════════════════════════════════════════
+
+    // Load config from URL hash if present (e.g. builder.html#config=<base64json>)
+    const hashMatch = window.location.hash.match(/^#config=(.+)$/);
+    if (hashMatch) {
+      try {
+        const imported = JSON.parse(atob(hashMatch[1]));
+        state.config = { ...defaults, ...imported };
+        if (imported.value != null) {
+          state.value = imported.value;
+          delete state.config.value;
+        }
+      } catch (e) {
+        console.warn('Builder: invalid config in URL hash', e);
+      }
+    }
 
     updateAllControls();
     rebuildGauge();

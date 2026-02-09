@@ -301,6 +301,25 @@
       box-shadow: 0 2px 8px var(--accent-glow);
     }
 
+    .open-builder-btn {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.12);
+      color: rgba(255,255,255,0.5);
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-size: 0.6rem;
+      font-family: 'Oswald', sans-serif;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      margin-top: 4px;
+    }
+    .open-builder-btn:hover {
+      background: rgba(255,255,255,0.12);
+      color: rgba(255,255,255,0.85);
+    }
+
     /* Slider */
     .example-slider {
       -webkit-appearance: none;
@@ -428,6 +447,8 @@
       width: 100%;
       white-space: pre;
       overflow-x: auto;
+      overflow-y: auto;
+      max-height: 300px;
       line-height: 1.4;
     }
 
@@ -532,6 +553,7 @@
       <a href="#events">Events</a>
       <a href="#config">Configuration</a>
       <a href="#colors">Colors &amp; Theming</a>
+      <a href="#modern">Modern Features</a>
       <a href="#presets">Presets</a>
       <a href="#container">Container</a>
       <a href="#advanced">Advanced</a>
@@ -689,8 +711,17 @@ gauge.vibration = <span class="kw">true</span>;   <span class="cmt">// enable ne
             <tr><td>colors</td><td>object</td><td>{}</td><td>Color overrides (see Colors section)</td></tr>
             <tr><td>zones</td><td>array</td><td>[]</td><td>Warning/danger zone arcs</td></tr>
             <tr><td>texts</td><td>array</td><td>[]</td><td>Arbitrary text placements on face</td></tr>
-            <tr><td>showDigitalValue</td><td>boolean</td><td>false</td><td>Show digital numeric readout</td></tr>
+            <tr><td>showDigitalValue</td><td>boolean</td><td>false</td><td>Show simple digital numeric readout (legacy; prefer digitalDisplay)</td></tr>
+            <tr><td>digitalDisplay</td><td>object</td><td>null</td><td>Advanced digital readout with position, font size, units display (see <a href="#modern" style="color:var(--accent)">Modern Features</a>)</td></tr>
             <tr><td>labelFontSize</td><td>number</td><td>1</td><td>Label font size multiplier (auto-shrinks for long labels)</td></tr>
+            <tr><td>needleGlow</td><td>boolean</td><td>false</td><td>Adds a colored glow effect behind the needle</td></tr>
+            <tr><td>activeTicks</td><td>object</td><td>null</td><td>Illuminate ticks up to current value (see <a href="#modern" style="color:var(--accent)">Modern Features</a>)</td></tr>
+            <tr><td>innerRing</td><td>object</td><td>null</td><td>Decorative ring inside the gauge face (see <a href="#modern" style="color:var(--accent)">Modern Features</a>)</td></tr>
+            <tr><td>microTicks</td><td>object</td><td>null</td><td>Dense minor tick marks for high-resolution scales (see <a href="#modern" style="color:var(--accent)">Modern Features</a>)</td></tr>
+            <tr><td>progressArc</td><td>object</td><td>null</td><td>Colored arc that fills proportional to current value (see <a href="#modern" style="color:var(--accent)">Modern Features</a>)</td></tr>
+            <tr><td>rings</td><td>array</td><td>[]</td><td>External segmented ring indicators (see <a href="#modern" style="color:var(--accent)">Modern Features</a>)</td></tr>
+            <tr><td>complications</td><td>array</td><td>[]</td><td>Sub-gauges embedded on the dial face (see <a href="#modern" style="color:var(--accent)">Modern Features</a>)</td></tr>
+            <tr><td>onDraw</td><td>function</td><td>null</td><td>Custom draw callback <code>(ctx, state) =&gt; {}</code> called each frame after needle</td></tr>
           </tbody>
         </table>
 
@@ -745,6 +776,163 @@ gauge.vibration = <span class="kw">true</span>;   <span class="cmt">// enable ne
           <div class="gauge-box" id="colors-default"></div>
           <div class="gauge-box" id="colors-custom"></div>
           <div class="gauge-box" id="colors-dark"></div>
+        </div>
+      </section>
+
+      <!-- MODERN FEATURES -->
+      <section id="modern">
+        <h2>Modern Features</h2>
+        <p>These advanced features enable contemporary instrument cluster designs with glowing needles, illuminated ticks, segmented rings, digital readouts, and embedded sub-gauges. See the <code>modern</code> preset for a full working example.</p>
+
+        <h3><code>needleGlow</code></h3>
+        <p>When <code>true</code>, adds a soft colored glow behind the needle using the needle's color. Simple boolean toggle.</p>
+
+        <h3><code>digitalDisplay</code></h3>
+        <p>Advanced digital readout replacing the simple <code>showDigitalValue</code> boolean. Provides full control over position, size, colors, and units display.</p>
+        <table class="config-table">
+          <thead><tr><th>Key</th><th>Type</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td>show</td><td>boolean</td><td>Enable the digital display</td></tr>
+            <tr><td>y</td><td>number</td><td>Vertical position (-1 to 1, 0 = center)</td></tr>
+            <tr><td>fontSize</td><td>number</td><td>Font size multiplier (e.g. 2 for large)</td></tr>
+            <tr><td>color</td><td>string</td><td>Text color (hex or CSS color)</td></tr>
+            <tr><td>background</td><td>boolean</td><td>Show a dark background behind the value</td></tr>
+            <tr><td>showUnits</td><td>boolean</td><td>Display units text alongside the value</td></tr>
+            <tr><td>unitsColor</td><td>string</td><td>Color for the units text</td></tr>
+            <tr><td>unitsFontSize</td><td>number</td><td>Font size multiplier for units text</td></tr>
+          </tbody>
+        </table>
+
+        <h3><code>activeTicks</code></h3>
+        <p>Illuminates tick marks from minimum up to the current needle position, creating a "fill" effect.</p>
+        <table class="config-table">
+          <thead><tr><th>Key</th><th>Type</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td>color</td><td>string</td><td>Color for illuminated ticks (e.g. '#FFAA00')</td></tr>
+          </tbody>
+        </table>
+
+        <h3><code>innerRing</code></h3>
+        <p>Draws a decorative circular ring inside the gauge face, useful for framing a digital readout.</p>
+        <table class="config-table">
+          <thead><tr><th>Key</th><th>Type</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td>radius</td><td>number</td><td>Ring radius as fraction of gauge radius (0.1 &ndash; 0.8)</td></tr>
+            <tr><td>width</td><td>number</td><td>Line width in pixels (1 &ndash; 6)</td></tr>
+            <tr><td>color</td><td>string</td><td>Ring color</td></tr>
+          </tbody>
+        </table>
+
+        <h3><code>microTicks</code></h3>
+        <p>Draws a dense set of fine tick marks for high-resolution scales (e.g. one per km/h on a speedometer).</p>
+        <table class="config-table">
+          <thead><tr><th>Key</th><th>Type</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td>count</td><td>number</td><td>Total number of micro ticks around the arc (10 &ndash; 500)</td></tr>
+            <tr><td>color</td><td>string</td><td>Tick color</td></tr>
+          </tbody>
+        </table>
+
+        <h3><code>progressArc</code></h3>
+        <p>A colored arc that fills proportional to the current gauge value, drawn along the tick arc.</p>
+        <table class="config-table">
+          <thead><tr><th>Key</th><th>Type</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td>width</td><td>number</td><td>Arc width as fraction of gauge radius (e.g. 0.04)</td></tr>
+            <tr><td>offset</td><td>number</td><td>Radial offset from center (0.5 &ndash; 1.0)</td></tr>
+            <tr><td>background</td><td>string</td><td>Background color for the unfilled portion</td></tr>
+            <tr><td>glow</td><td>boolean</td><td>Add glow effect to the filled arc</td></tr>
+            <tr><td>gradient</td><td>array</td><td>Color stops: <code>[{ at: 0, color: '#00ff00' }, { at: 1, color: '#ff0000' }]</code></td></tr>
+          </tbody>
+        </table>
+
+        <h3><code>rings</code></h3>
+        <p>External segmented ring indicators, often used for RPM/rev bands outside the main bezel. Each ring is an object in the array:</p>
+        <table class="config-table">
+          <thead><tr><th>Key</th><th>Type</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td>min / max</td><td>number</td><td>Value range for the ring</td></tr>
+            <tr><td>width</td><td>number</td><td>Ring width as fraction of gauge radius</td></tr>
+            <tr><td>offset</td><td>number</td><td>Radial offset (1.0 = at bezel edge, &gt;1.0 = outside)</td></tr>
+            <tr><td>startAngle / endAngle</td><td>number</td><td>Angular span in degrees</td></tr>
+            <tr><td>segments</td><td>number</td><td>Number of discrete blocks (0 = continuous)</td></tr>
+            <tr><td>background</td><td>string</td><td>Color for unfilled segments</td></tr>
+            <tr><td>gradient</td><td>array</td><td>Color stops: <code>[{ at: 0, color: '#0f0' }, ...]</code></td></tr>
+            <tr><td>flash</td><td>object</td><td>Flash effect: <code>{ above: 7000, color: 'rgba(255,0,0,0.5)', rate: 4 }</code></td></tr>
+          </tbody>
+        </table>
+
+        <h3><code>complications</code></h3>
+        <p>Embedded sub-gauges on the dial face (fuel gauge, oil temp, etc.). Each complication is an object in the array:</p>
+        <table class="config-table">
+          <thead><tr><th>Key</th><th>Type</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td>type</td><td>string</td><td>Complication type ('arc')</td></tr>
+            <tr><td>x / y</td><td>number</td><td>Position on dial face (-1 to 1)</td></tr>
+            <tr><td>radius</td><td>number</td><td>Size reference for tick/marker width</td></tr>
+            <tr><td>min / max</td><td>number</td><td>Value range</td></tr>
+            <tr><td>startAngle / endAngle</td><td>number</td><td>Angular span in degrees</td></tr>
+            <tr><td>arcOffset</td><td>number</td><td>Radial position of the arc</td></tr>
+            <tr><td>arcWidth</td><td>number</td><td>Arc line width</td></tr>
+            <tr><td>zones</td><td>array</td><td>Color zones: <code>[{ start: 0, end: 0.15, color: '#FF3333' }]</code></td></tr>
+            <tr><td>fill</td><td>object</td><td>Fill arc: <code>{ color, widthMultiplier, glow }</code></td></tr>
+            <tr><td>tickMarks</td><td>number</td><td>Number of tick marks on the arc</td></tr>
+            <tr><td>marker</td><td>boolean</td><td>Show a position marker on the arc</td></tr>
+            <tr><td>markerColor</td><td>string</td><td>Marker color</td></tr>
+            <tr><td>labelSide</td><td>string</td><td>'inside' or 'outside' for label placement</td></tr>
+            <tr><td>labelFontSize</td><td>number</td><td>Font size for labels</td></tr>
+            <tr><td>labels</td><td>array</td><td>Label positions: <code>[{ text: 'E', position: 0 }, { text: 'F', position: 1 }]</code></td></tr>
+          </tbody>
+        </table>
+
+        <h3><code>onDraw</code></h3>
+        <p>Custom draw callback invoked each animation frame after the needle is drawn. Receives the canvas 2D context and a state object with <code>{ value, angle, centerX, centerY, radius }</code>.</p>
+
+        <p>Here is the built-in <code>modern</code> preset demonstrating these features together:</p>
+        <div class="code-block">
+          <button class="copy-btn">Copy</button>
+<pre><span class="kw">new</span> <span class="fn">Gauge</span>(el, {
+  <span class="prop">min</span>: <span class="num">0</span>, <span class="prop">max</span>: <span class="num">320</span>,
+  <span class="prop">units</span>: <span class="str">'km/h'</span>,
+  <span class="prop">faceStyle</span>: <span class="str">'dark'</span>,
+  <span class="prop">needleGlow</span>: <span class="kw">true</span>,
+  <span class="prop">colors</span>: { <span class="prop">needle</span>: <span class="str">'#FF8800'</span>, <span class="prop">ticks</span>: <span class="str">'#CCCCCC'</span> },
+  <span class="prop">digitalDisplay</span>: {
+    <span class="prop">show</span>: <span class="kw">true</span>, <span class="prop">fontSize</span>: <span class="num">2</span>,
+    <span class="prop">color</span>: <span class="str">'#FFFFFF'</span>,
+    <span class="prop">showUnits</span>: <span class="kw">true</span>, <span class="prop">unitsColor</span>: <span class="str">'#999999'</span>
+  },
+  <span class="prop">activeTicks</span>: { <span class="prop">color</span>: <span class="str">'#FFAA00'</span> },
+  <span class="prop">innerRing</span>: { <span class="prop">radius</span>: <span class="num">0.38</span>, <span class="prop">color</span>: <span class="str">'#333333'</span>, <span class="prop">width</span>: <span class="num">2</span> },
+  <span class="prop">microTicks</span>: { <span class="prop">count</span>: <span class="num">320</span>, <span class="prop">color</span>: <span class="str">'#444444'</span> },
+  <span class="prop">rings</span>: [{
+    <span class="prop">min</span>: <span class="num">0</span>, <span class="prop">max</span>: <span class="num">8000</span>, <span class="prop">width</span>: <span class="num">0.04</span>, <span class="prop">offset</span>: <span class="num">1.08</span>,
+    <span class="prop">segments</span>: <span class="num">30</span>,
+    <span class="prop">gradient</span>: [
+      { <span class="prop">at</span>: <span class="num">0</span>, <span class="prop">color</span>: <span class="str">'#2255FF'</span> },
+      { <span class="prop">at</span>: <span class="num">1</span>, <span class="prop">color</span>: <span class="str">'#FF2200'</span> }
+    ]
+  }],
+  <span class="prop">complications</span>: [{
+    <span class="prop">type</span>: <span class="str">'arc'</span>,
+    <span class="prop">startAngle</span>: <span class="num">216</span>, <span class="prop">endAngle</span>: <span class="num">144</span>,
+    <span class="prop">arcOffset</span>: <span class="num">0.82</span>, <span class="prop">arcWidth</span>: <span class="num">0.012</span>,
+    <span class="prop">fill</span>: { <span class="prop">color</span>: <span class="str">'#00CCBB'</span>, <span class="prop">glow</span>: <span class="kw">true</span> },
+    <span class="prop">labels</span>: [
+      { <span class="prop">text</span>: <span class="str">'E'</span>, <span class="prop">position</span>: <span class="num">0</span> },
+      { <span class="prop">text</span>: <span class="str">'F'</span>, <span class="prop">position</span>: <span class="num">1</span> }
+    ]
+  }]
+});</pre>
+        </div>
+
+        <div class="live-example" style="flex-direction: column; align-items: center;">
+          <div style="display: flex; gap: 24px; flex-wrap: wrap; justify-content: center;">
+            <div class="gauge-box" id="modern-gauge" style="width: 280px; height: 280px;"></div>
+          </div>
+          <div style="display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-top: 8px;">
+            <input type="range" class="example-slider" id="modern-slider" min="0" max="320" value="0" style="width: 250px;">
+          </div>
         </div>
       </section>
 
@@ -836,27 +1024,47 @@ gauge.vibration = <span class="kw">true</span>;   <span class="cmt">// enable ne
   </footer>
 
   <script type="module">
-    import { Gauge, presets } from './src/index.js';
+    import { Gauge, presets, defaults } from './src/index.js';
+
+    function addBuilderBtn(container, config) {
+      const btn = document.createElement('button');
+      btn.className = 'open-builder-btn';
+      btn.textContent = 'Open in Builder';
+      btn.addEventListener('click', () => {
+        const full = typeof config === 'string'
+          ? { ...defaults, ...presets[config] }
+          : { ...defaults, ...config };
+        const minimal = {};
+        for (const key of Object.keys(full)) {
+          if (JSON.stringify(full[key]) !== JSON.stringify(defaults[key])) {
+            minimal[key] = full[key];
+          }
+        }
+        window.open('builder.html#config=' + btoa(JSON.stringify(minimal)), '_blank');
+      });
+      container.after(btn);
+    }
 
     // ── Quick Start ──
-    const qsGauge = new Gauge(document.getElementById('qs-gauge'), {
-      min: 0, max: 100, label: 'SPEED', units: 'MPH'
-    });
+    const qsConfig = { min: 0, max: 100, label: 'SPEED', units: 'MPH' };
+    const qsGauge = new Gauge(document.getElementById('qs-gauge'), qsConfig);
     qsGauge.setValue(60);
+    addBuilderBtn(document.getElementById('qs-gauge'), qsConfig);
 
     // ── Constructor ──
     const ctorPreset = new Gauge(document.getElementById('ctor-preset'), 'rpm');
     ctorPreset.setValue(35);
+    addBuilderBtn(document.getElementById('ctor-preset'), 'rpm');
 
-    const ctorCustom = new Gauge(document.getElementById('ctor-custom'), {
-      min: 0, max: 200, label: 'KPH', units: 'km/h', majorTicks: 11, minorTicks: 2
-    });
+    const ctorCustomConfig = { min: 0, max: 200, label: 'KPH', units: 'km/h', majorTicks: 11, minorTicks: 2 };
+    const ctorCustom = new Gauge(document.getElementById('ctor-custom'), ctorCustomConfig);
     ctorCustom.setValue(120);
+    addBuilderBtn(document.getElementById('ctor-custom'), ctorCustomConfig);
 
     // ── Methods ──
-    const methodsGauge = new Gauge(document.getElementById('methods-gauge'), {
-      min: 0, max: 100, label: 'DEMO', units: '%', majorTicks: 6
-    });
+    const methodsConfig = { min: 0, max: 100, label: 'DEMO', units: '%', majorTicks: 6 };
+    const methodsGauge = new Gauge(document.getElementById('methods-gauge'), methodsConfig);
+    addBuilderBtn(document.getElementById('methods-gauge'), methodsConfig);
 
     document.getElementById('btn-animated').addEventListener('click', () => methodsGauge.setValue(75));
     document.getElementById('btn-immediate').addEventListener('click', () => methodsGauge.setValue(25, { immediate: true }));
@@ -865,9 +1073,9 @@ gauge.vibration = <span class="kw">true</span>;   <span class="cmt">// enable ne
 
     // ── Events ──
     const eventsEl = document.getElementById('events-gauge');
-    const eventsGauge = new Gauge(eventsEl, {
-      min: 0, max: 100, label: 'EVENTS', majorTicks: 6
-    });
+    const eventsConfig = { min: 0, max: 100, label: 'EVENTS', majorTicks: 6 };
+    const eventsGauge = new Gauge(eventsEl, eventsConfig);
+    addBuilderBtn(eventsEl, eventsConfig);
     const eventLog = document.getElementById('event-log');
 
     function logEvent(name, detail) {
@@ -891,7 +1099,7 @@ gauge.vibration = <span class="kw">true</span>;   <span class="cmt">// enable ne
     document.getElementById('btn-events-sweep').addEventListener('click', () => eventsGauge.sweep());
 
     // ── Config (Kitchen Sink) ──
-    const configGauge = new Gauge(document.getElementById('config-gauge'), {
+    const configConfig = {
       min: 0, max: 120, label: 'POWER', units: 'kW',
       majorTicks: 7, minorTicks: 3,
       faceStyle: 'dark',
@@ -902,26 +1110,39 @@ gauge.vibration = <span class="kw">true</span>;   <span class="cmt">// enable ne
         { start: 100, end: 120, color: 'rgba(204, 32, 32, 0.15)' }
       ],
       texts: [{ text: 'EV', x: 0, y: -0.25 }]
-    });
+    };
+    const configGauge = new Gauge(document.getElementById('config-gauge'), configConfig);
     configGauge.setValue(72);
+    addBuilderBtn(document.getElementById('config-gauge'), configConfig);
 
     // ── Colors ──
-    const colorsDefault = new Gauge(document.getElementById('colors-default'), {
-      min: 0, max: 100, label: 'DEFAULT', majorTicks: 6
-    });
+    const colorsDefaultConfig = { min: 0, max: 100, label: 'DEFAULT', majorTicks: 6 };
+    const colorsDefault = new Gauge(document.getElementById('colors-default'), colorsDefaultConfig);
     colorsDefault.setValue(50);
+    addBuilderBtn(document.getElementById('colors-default'), colorsDefaultConfig);
 
-    const colorsCustom = new Gauge(document.getElementById('colors-custom'), {
+    const colorsCustomConfig = {
       min: 0, max: 100, label: 'CUSTOM', majorTicks: 6,
       colors: { needle: '#2255CC', face: '#F0F0FF', ticks: '#223366', numbers: '#223366', label: '#223366' }
-    });
+    };
+    const colorsCustom = new Gauge(document.getElementById('colors-custom'), colorsCustomConfig);
     colorsCustom.setValue(50);
+    addBuilderBtn(document.getElementById('colors-custom'), colorsCustomConfig);
 
-    const colorsDark = new Gauge(document.getElementById('colors-dark'), {
-      min: 0, max: 100, label: 'DARK', majorTicks: 6,
-      faceStyle: 'dark'
-    });
+    const colorsDarkConfig = { min: 0, max: 100, label: 'DARK', majorTicks: 6, faceStyle: 'dark' };
+    const colorsDark = new Gauge(document.getElementById('colors-dark'), colorsDarkConfig);
     colorsDark.setValue(50);
+    addBuilderBtn(document.getElementById('colors-dark'), colorsDarkConfig);
+
+    // ── Modern Features ──
+    const modernGauge = new Gauge(document.getElementById('modern-gauge'), 'modern');
+    modernGauge.setValue(120);
+    modernGauge.setComplicationValue(0, 0.6);
+    addBuilderBtn(document.getElementById('modern-gauge'), 'modern');
+
+    document.getElementById('modern-slider').addEventListener('input', (e) => {
+      modernGauge.setValue(parseFloat(e.target.value));
+    });
 
     // ── Presets ──
     const presetGrid = document.getElementById('preset-grid');
@@ -941,8 +1162,10 @@ gauge.vibration = <span class="kw">true</span>;   <span class="cmt">// enable ne
       const configEl = document.createElement('div');
       configEl.className = 'preset-config';
       const configLines = Object.entries(config).map(([k, v]) => {
-        const val = typeof v === 'string' ? `'${v}'` : JSON.stringify(v);
-        return `  ${k}: ${val}`;
+        if (typeof v === 'string') return `  ${k}: '${v}'`;
+        if (v === null || typeof v !== 'object') return `  ${k}: ${v}`;
+        const json = JSON.stringify(v, null, 2).split('\n').map((line, i) => i === 0 ? line : '  ' + line).join('\n');
+        return `  ${k}: ${json}`;
       }).join('\n');
       configEl.textContent = `{\n${configLines}\n}`;
 
@@ -952,9 +1175,16 @@ gauge.vibration = <span class="kw">true</span>;   <span class="cmt">// enable ne
       presetGrid.appendChild(card);
 
       const gauge = new Gauge(gaugeDiv, name);
+      addBuilderBtn(gaugeDiv, name);
       // Set to midpoint
       const mid = (config.min + config.max) / 2;
       gauge.setValue(mid);
+      // Set complication values for presets that have them
+      if (config.complications) {
+        config.complications.forEach((c, ci) => {
+          gauge.setComplicationValue(ci, (c.max - (c.min || 0)) * 0.6 + (c.min || 0));
+        });
+      }
     }
 
     // ── Container ──
@@ -974,17 +1204,15 @@ gauge.vibration = <span class="kw">true</span>;   <span class="cmt">// enable ne
     csm.setValue(30);
 
     // ── Advanced ──
-    const advLoose = new Gauge(document.getElementById('adv-loose'), {
-      min: 0, max: 100, label: 'LOOSE', majorTicks: 6,
-      stiffness: 40, damping: 8
-    });
+    const advLooseConfig = { min: 0, max: 100, label: 'LOOSE', majorTicks: 6, stiffness: 40, damping: 8 };
+    const advLoose = new Gauge(document.getElementById('adv-loose'), advLooseConfig);
     advLoose.setValue(0, { immediate: true });
+    addBuilderBtn(document.getElementById('adv-loose'), advLooseConfig);
 
-    const advTight = new Gauge(document.getElementById('adv-tight'), {
-      min: 0, max: 100, label: 'TIGHT', majorTicks: 6,
-      stiffness: 300, damping: 30
-    });
+    const advTightConfig = { min: 0, max: 100, label: 'TIGHT', majorTicks: 6, stiffness: 300, damping: 30 };
+    const advTight = new Gauge(document.getElementById('adv-tight'), advTightConfig);
     advTight.setValue(0, { immediate: true });
+    addBuilderBtn(document.getElementById('adv-tight'), advTightConfig);
 
     document.getElementById('btn-adv-go').addEventListener('click', () => {
       advLoose.setValue(80);
