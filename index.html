@@ -316,6 +316,28 @@
       box-shadow: 0 0 12px rgba(76, 217, 100, 0.5);
     }
 
+    .reduced-motion-notice {
+      display: none;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      color: #f5a623;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    .reduced-motion-notice.visible {
+      display: flex;
+    }
+
+    .reduced-motion-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #f5a623;
+      box-shadow: 0 0 8px rgba(245, 166, 35, 0.4);
+    }
+
     /* Footer */
     footer {
       padding: 16px;
@@ -454,6 +476,10 @@
           <span class="status-dot" id="status-dot"></span>
           <span id="status-text">Ready</span>
         </div>
+        <div class="reduced-motion-notice" id="reduced-motion-notice">
+          <span class="reduced-motion-dot"></span>
+          <span>Reduced motion — animations simplified (OS setting)</span>
+        </div>
       </div>
     </div>
   </main>
@@ -566,6 +592,15 @@
       stopLimiter();
       stopSimulation();
     });
+
+    // Reduced motion indicator
+    const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const motionNotice = document.getElementById('reduced-motion-notice');
+    function updateMotionNotice(matches) {
+      motionNotice.classList.toggle('visible', matches);
+    }
+    updateMotionNotice(motionQuery.matches);
+    motionQuery.addEventListener('change', (e) => updateMotionNotice(e.matches));
 
     // Initial sweep on load
     setTimeout(() => {

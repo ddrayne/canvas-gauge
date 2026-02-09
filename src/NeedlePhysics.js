@@ -35,14 +35,17 @@ export default class NeedlePhysics {
     this.vibrationEnabled = false;
     this.vibrationAmount = 0.002;  // radians
 
-    // Reduced motion support
-    this.reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    // Reduced motion support — listen for changes
+    this._motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+    this.reducedMotion = this._motionQuery.matches;
+    this._onMotionChange = (e) => { this.reducedMotion = e.matches; };
+    this._motionQuery.addEventListener('change', this._onMotionChange);
   }
 
   setTarget(angle, immediate = false) {
     this.targetAngle = angle;
 
-    if (immediate || this.reducedMotion) {
+    if (immediate) {
       this.angle = angle;
       this.velocity = 0;
     }
@@ -67,13 +70,6 @@ export default class NeedlePhysics {
       frameTime = MAX_FRAME_TIME;
     }
 
-    // Reduced motion: snap to target
-    if (this.reducedMotion) {
-      this.angle = this.targetAngle;
-      this.velocity = 0;
-      return this.angle;
-    }
-
     // Fixed timestep accumulator for frame-rate independent physics
     this.accumulator += frameTime;
 
@@ -93,8 +89,12 @@ export default class NeedlePhysics {
 
   step(dt) {
     // Spring-damper equation
+    // Reduced motion: overdamped (no bounce/overshoot), fast settle
+    const stiffness = this.reducedMotion ? 300 : this.stiffness;
+    const damping = this.reducedMotion ? 40 : this.damping;
+
     const displacement = this.targetAngle - this.angle;
-    let acceleration = this.stiffness * displacement - this.damping * this.velocity;
+    let acceleration = stiffness * displacement - damping * this.velocity;
 
     // Clamp acceleration
     acceleration = Math.max(-this.maxAccel, Math.min(this.maxAccel, acceleration));
@@ -106,6 +106,10 @@ export default class NeedlePhysics {
     this.velocity = Math.max(-this.maxVelocity, Math.min(this.maxVelocity, this.velocity));
 
     this.angle += this.velocity * dt;
+  }
+
+  destroy() {
+    this._motionQuery.removeEventListener('change', this._onMotionChange);
   }
 
   // Check if needle has settled (for sweep animation completion)

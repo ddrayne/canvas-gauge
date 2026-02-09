@@ -285,6 +285,9 @@ export default class Gauge {
       cancelAnimationFrame(this._animationId);
       this._animationId = null;
     }
+    if (this._physics) {
+      this._physics.destroy();
+    }
     if (this._canvas && this._canvas.parentNode) {
       this._canvas.parentNode.removeChild(this._canvas);
     }
