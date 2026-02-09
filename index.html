@@ -482,6 +482,47 @@
         </div>
       </div>
     </div>
+
+    <!-- Modern Gauge Demo -->
+    <h2 style="font-family: 'Bebas Neue', 'Oswald', sans-serif; font-size: clamp(22px, 4vw, 36px); letter-spacing: 3px; text-transform: uppercase; color: var(--text-secondary); text-align: center;">Modern Digital Cluster</h2>
+    <p style="font-size: 12px; color: var(--text-secondary); letter-spacing: 1px; text-transform: uppercase; text-align: center; margin-top: -16px;">Progress Arc • Ring Indicators • Complications • Digital Display</p>
+
+    <div class="gauge-container">
+      <div style="display: flex; justify-content: center; padding: 24px; background: linear-gradient(145deg, #1a1a1a 0%, #0d0d0d 100%); border-radius: 16px; box-shadow: 0 20px 60px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.05);">
+        <div id="gauge-modern" style="width: 400px; height: 400px; max-width: 90vw; aspect-ratio: 1;"></div>
+      </div>
+    </div>
+
+    <div class="controls">
+      <div class="control-grid">
+        <div class="control-group">
+          <div class="control-label">
+            <span>Speed</span>
+            <span class="control-value" id="modern-speed-value">95 km/h</span>
+          </div>
+          <input type="range" id="modern-speed-slider" min="0" max="320" value="95">
+        </div>
+        <div class="control-group">
+          <div class="control-label">
+            <span>RPM (Ring)</span>
+            <span class="control-value" id="modern-rpm-value">3500</span>
+          </div>
+          <input type="range" id="modern-rpm-slider" min="0" max="8000" value="3500">
+        </div>
+        <div class="control-group">
+          <div class="control-label">
+            <span>Fuel Level</span>
+            <span class="control-value" id="modern-fuel-value">60%</span>
+          </div>
+          <input type="range" id="modern-fuel-slider" min="0" max="1" step="0.01" value="0.6">
+        </div>
+      </div>
+      <div class="button-row">
+        <button class="btn-primary" id="modern-sweep-btn">Sweep Test</button>
+        <button class="btn-secondary" id="modern-drive-btn">Simulated Drive</button>
+        <button class="btn-secondary" id="modern-redline-btn">Redline Flash</button>
+      </div>
+    </div>
   </main>
 
   <footer>
@@ -721,6 +762,89 @@
         control.value.textContent = control.format(value);
       }
     }
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // MODERN GAUGE DEMO
+    // ═══════════════════════════════════════════════════════════════════════
+
+    const modernGauge = new Gauge(document.getElementById('gauge-modern'), 'modern');
+    modernGauge.setValue(95, { immediate: true });
+    modernGauge.setRingValue(0, 3500);
+    modernGauge.setComplicationValue(0, 0.6);
+
+    // Modern sliders
+    const modernSpeedSlider = document.getElementById('modern-speed-slider');
+    const modernRpmSlider = document.getElementById('modern-rpm-slider');
+    const modernFuelSlider = document.getElementById('modern-fuel-slider');
+
+    modernSpeedSlider.addEventListener('input', () => {
+      const v = parseFloat(modernSpeedSlider.value);
+      modernGauge.setValue(v);
+      document.getElementById('modern-speed-value').textContent = `${Math.round(v)} km/h`;
+    });
+
+    modernRpmSlider.addEventListener('input', () => {
+      const v = parseFloat(modernRpmSlider.value);
+      modernGauge.setRingValue(0, v);
+      document.getElementById('modern-rpm-value').textContent = Math.round(v).toString();
+    });
+
+    modernFuelSlider.addEventListener('input', () => {
+      const v = parseFloat(modernFuelSlider.value);
+      modernGauge.setComplicationValue(0, v);
+      document.getElementById('modern-fuel-value').textContent = `${Math.round(v * 100)}%`;
+    });
+
+    // Modern sweep
+    document.getElementById('modern-sweep-btn').addEventListener('click', () => {
+      modernGauge.sweep();
+    });
+
+    // Modern simulated drive
+    let modernDriveActive = false;
+    let modernDriveLoop = null;
+    document.getElementById('modern-drive-btn').addEventListener('click', () => {
+      if (modernDriveActive) {
+        modernDriveActive = false;
+        if (modernDriveLoop) cancelAnimationFrame(modernDriveLoop);
+        return;
+      }
+      modernDriveActive = true;
+      const startTime = performance.now();
+      let mSpeed = 95, mRpm = 3500, targetRpm = 3500, accel = true;
+
+      function tick() {
+        if (!modernDriveActive) return;
+        const t = (performance.now() - startTime) / 1000;
+
+        if (Math.random() < 0.008) { accel = !accel; targetRpm = accel ? 4000 + Math.random() * 3500 : 1500 + Math.random() * 2000; }
+        mRpm += (targetRpm - mRpm) * 0.03;
+        mRpm += Math.sin(t * 2.5) * 80;
+        mRpm = Math.max(800, Math.min(7800, mRpm));
+
+        const targetSpeed = (mRpm / 7500) * 280 + Math.random() * 5;
+        mSpeed += (targetSpeed - mSpeed) * 0.02;
+        mSpeed = Math.max(0, Math.min(310, mSpeed));
+
+        modernGauge.setValue(mSpeed);
+        modernGauge.setRingValue(0, mRpm);
+
+        modernSpeedSlider.value = mSpeed;
+        modernRpmSlider.value = mRpm;
+        document.getElementById('modern-speed-value').textContent = `${Math.round(mSpeed)} km/h`;
+        document.getElementById('modern-rpm-value').textContent = Math.round(mRpm).toString();
+
+        modernDriveLoop = requestAnimationFrame(tick);
+      }
+      modernDriveLoop = requestAnimationFrame(tick);
+    });
+
+    // Redline flash demo — push RPM to redline
+    document.getElementById('modern-redline-btn').addEventListener('click', () => {
+      modernGauge.setRingValue(0, 7500);
+      modernRpmSlider.value = 7500;
+      document.getElementById('modern-rpm-value').textContent = '7500';
+    });
   </script>
 </body>
 </html>

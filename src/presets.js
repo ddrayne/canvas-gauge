@@ -20,8 +20,17 @@ export const defaults = {
   colors: {},
   zones: [],
   showDigitalValue: false,
+  digitalDisplay: null,
   labelFontSize: 1,
   texts: [],
+  activeTicks: null,
+  needleGlow: false,
+  progressArc: null,
+  innerRing: null,
+  microTicks: null,
+  rings: [],
+  complications: [],
+  onDraw: null,
 };
 
 export const presets = {
@@ -100,5 +109,96 @@ export const presets = {
     endAngle: -45,
     stiffness: 60,
     damping: 25
+  },
+  modern: {
+    min: 0,
+    max: 320,
+    units: 'km/h',
+    label: '',
+    majorTicks: 9,        // 0, 40, 80, 120, 160, 200, 240, 280, 320
+    minorTicks: 4,        // every 10 km/h between majors
+    startAngle: -130,     // ~7:40 position
+    endAngle: 130,        // ~4:20 position (260° sweep, top ~72%)
+    stiffness: 120,
+    damping: 18,
+    faceStyle: 'dark',
+    needleGlow: true,
+    colors: {
+      face: '#0A0A0A',
+      needle: '#FF8800',
+      ticks: '#CCCCCC',
+      minorTicks: '#666666',
+      numbers: '#AAAAAA',
+    },
+    innerRing: {
+      radius: 0.38,        // fraction of gauge radius — frames the digital readout
+      color: '#333333',
+      width: 2
+    },
+    microTicks: {
+      count: 320,          // one per km/h
+      color: '#444444'
+    },
+    activeTicks: {
+      color: '#FFAA00'     // amber: ticks illuminate up to current speed
+    },
+    rings: [{
+      min: 0,
+      max: 8000,
+      width: 0.04,
+      offset: 1.08,       // outside the bezel
+      startAngle: -75,    // ~10:30 on the clock
+      endAngle: 75,       // ~1:30 on the clock
+      segments: 30,       // discrete blocks
+      gradient: [
+        { at: 0, color: '#2255FF' },
+        { at: 0.15, color: '#00CC44' },
+        { at: 0.7, color: '#CCCC00' },
+        { at: 1, color: '#FF2200' }
+      ],
+      background: 'rgba(255,255,255,0.04)',
+      flash: { above: 7000, color: 'rgba(255, 0, 0, 0.5)', rate: 4 }
+    }],
+    digitalDisplay: {
+      show: true,
+      y: 0,
+      fontSize: 2,
+      color: '#FFFFFF',
+      background: false,
+      showUnits: true,
+      unitsColor: '#999999',
+      unitsFontSize: 0.35
+    },
+    texts: [],
+    complications: [{
+      type: 'arc',
+      x: 0,
+      y: 0,
+      radius: 0.15,       // sizing reference for tick/marker width
+      min: 0,
+      max: 1,
+      startAngle: 216,    // left (~7:12) = E
+      endAngle: 144,      // right (~4:48) = F, CCW through bottom (~72° arc)
+      arcOffset: 0.82,    // same circle as main speedo ticks
+      arcWidth: 0.012,    // thin arc matching tick weight
+      zones: [
+        { start: 0, end: 0.15, color: '#FF3333' },
+        { start: 0.15, end: 1, color: 'rgba(255,255,255,0.06)' }
+      ],
+      fill: {
+        color: '#00CCBB',
+        widthMultiplier: 2,
+        glow: true
+      },
+      tickMarks: 4,
+      labelSide: 'inside',
+      labelFontSize: 0.04,
+      labels: [
+        { text: 'E', position: 0 },
+        { text: 'F', position: 1 }
+      ],
+      marker: true,
+      markerColor: '#FFFFFF'
+    }]
   }
 };

@@ -67,6 +67,19 @@ export default class Gauge {
       this._config = { ...defaults, ...config };
       this._presetName = null;
     }
+
+    // Normalise digitalDisplay: accept boolean showDigitalValue or object form
+    if (this._config.digitalDisplay && typeof this._config.digitalDisplay === 'object') {
+      this._config._digitalDisplay = { show: true, ...this._config.digitalDisplay };
+    } else if (this._config.showDigitalValue) {
+      this._config._digitalDisplay = { show: true };
+    } else {
+      this._config._digitalDisplay = null;
+    }
+
+    // Initialise secondary value arrays
+    this._ringValues = (this._config.rings || []).map(r => r.value != null ? r.value : r.min || 0);
+    this._complicationValues = (this._config.complications || []).map(c => c.value != null ? c.value : c.min || 0);
   }
 
   _initializeComponent() {
@@ -192,18 +205,49 @@ export default class Gauge {
     ctx.clearRect(0, 0, size * dpi, size * dpi);
     ctx.scale(dpi, dpi);
 
-    // Draw cached static layers
+    // 1. Composite cached static layers
     ctx.drawImage(this._renderer.staticCanvas, 0, 0, size, size);
 
-    // Draw animated needle
+    // 2. Active ticks (illuminate ticks up to current value)
+    if (this._config.activeTicks) {
+      this._renderer.drawActiveTicks(ctx, center, radius, currentAngle, this._config);
+    }
+
+    // 3. Progress arc (tracks needle angle)
+    if (this._config.progressArc) {
+      this._renderer.drawProgressArc(ctx, center, radius, currentAngle, this._config);
+    }
+
+    // 3. Ring indicators (secondary data)
+    if (this._config.rings && this._config.rings.length > 0) {
+      this._renderer.drawRings(ctx, center, radius, this._ringValues, timestamp, this._config);
+    }
+
+    // 4. Needle
     this._renderer.drawNeedle(ctx, center, radius, currentAngle);
 
-    // Draw center cap (on top of needle)
+    // 5. Center cap
     this._renderer.drawCenterCap(ctx, center, radius);
 
-    // Draw digital value display (per-frame, since value changes)
-    if (this._config.showDigitalValue) {
-      this._renderer.drawDigitalValue(ctx, center, radius, this._targetValue, this._config.units);
+    // 6. Complications (sub-gauges)
+    if (this._config.complications && this._config.complications.length > 0) {
+      this._renderer.drawComplications(ctx, center, radius, this._complicationValues, this._config);
+    }
+
+    // 7. Digital display
+    const dd = this._config._digitalDisplay;
+    if (dd && dd.show) {
+      this._renderer.drawDigitalValue(ctx, center, radius, this._targetValue, this._config.units, dd);
+    }
+
+    // 8. Custom draw hook
+    if (typeof this._config.onDraw === 'function') {
+      this._config.onDraw(ctx, {
+        center, radius,
+        value: this._targetValue,
+        angle: currentAngle,
+        size, dpi, timestamp
+      });
     }
   }
 
@@ -276,6 +320,26 @@ export default class Gauge {
     if (this._physics) {
       this._physics.vibrationEnabled = enabled;
     }
+  }
+
+  setRingValue(index, value) {
+    if (this._ringValues && index >= 0 && index < this._ringValues.length) {
+      this._ringValues[index] = value;
+    }
+  }
+
+  getRingValue(index) {
+    return this._ringValues ? this._ringValues[index] : undefined;
+  }
+
+  setComplicationValue(index, value) {
+    if (this._complicationValues && index >= 0 && index < this._complicationValues.length) {
+      this._complicationValues[index] = value;
+    }
+  }
+
+  getComplicationValue(index) {
+    return this._complicationValues ? this._complicationValues[index] : undefined;
   }
 
   destroy() {
